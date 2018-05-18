@@ -1,6 +1,13 @@
 package com.youye.controller;
 
-import com.youye.jwt.util.JSONResult;
+import com.youye.model.User;
+import com.youye.model.result.ResultInfo;
+import com.youye.service.UserService;
+import com.youye.util.ErrCode;
+import com.youye.util.JSONResult;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +30,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class LoginController {
 
+    @Autowired
+    private UserService userService;
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public String login() {
-        return "login success";
+    public ResultInfo login(HttpServletRequest request, HttpServletResponse response) {
+        String username = (String) request.getAttribute("username");
+        String token = (String) request.getAttribute("token");
+        if (username == null || token == null)
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "用户验证错误");
+
+        User user = userService.findOneByUsername(username);
+        response.setHeader("token", token);
+
+        return new ResultInfo(ErrCode.OK, user, "login success");
     }
 
     @RequestMapping(value = "/hello", method = RequestMethod.POST)
@@ -37,5 +55,4 @@ public class LoginController {
     public String world() {
         return JSONResult.fillResultString(0, "", "world");
     }
-
 }

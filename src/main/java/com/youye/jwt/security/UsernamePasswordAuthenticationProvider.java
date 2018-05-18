@@ -1,12 +1,11 @@
 package com.youye.jwt.security;
 
-import java.util.ArrayList;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * **********************************************
@@ -17,7 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
  * <p/>
  * Email: wuxinping@ubinavi.com.cn
  * <p/>
- * brief:
+ * brief: 用户账号验证模块
  * <p/>
  * history:
  * <p/>
@@ -25,29 +24,36 @@ import org.springframework.security.core.GrantedAuthority;
  */
 public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
 
+    private UserDetailsService userDetailService;
+
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) {
+
         // 获取认证的用户名 & 密码
         String name = authentication.getName();
         String password = authentication.getCredentials().toString();
 
-        // 认证逻辑
-        if (name.equals("admin") && password.equals("123456")) {
-
-            // 这里设置权限和角色
-            ArrayList<GrantedAuthority> authorities = new ArrayList<>();
-            authorities.add( new GrantedAuthorityImpl("ROLE_ADMIN") );
-            authorities.add( new GrantedAuthorityImpl("AUTH_WRITE") );
-            // 生成令牌
-            Authentication auth = new UsernamePasswordAuthenticationToken(name, password, authorities);
-            return auth;
-        }else {
-            throw new BadCredentialsException("密码错误~");
+        UserDetails userDetails = userDetailService.loadUserByUsername(name);
+        if (userDetails == null) {
+            throw new BadCredentialsException("用户不存在");
         }
+
+        if (!userDetails.getPassword().equals(password))
+            throw new BadCredentialsException("用户名或密码错误");
+
+        return new UsernamePasswordAuthenticationToken(name, password, userDetails.getAuthorities());
     }
 
     @Override
     public boolean supports(Class<?> authencation) {
         return authencation.equals(UsernamePasswordAuthenticationToken.class);
+    }
+
+    public UserDetailsService getUserDetailService() {
+        return userDetailService;
+    }
+
+    public void setUserDetailService(UserDetailsService userDetailService) {
+        this.userDetailService = userDetailService;
     }
 }

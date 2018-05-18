@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.youye.mapper.UserMapper">
+
+    <resultMap id="userInfo" type="com.youye.model.User">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="nick_name" property="nickName"/>
+        <result column="sex" property="sex"/>
+        <result column="age" property="age"/>
+        <result column="role" property="role"/>
+        <result column="state" property="state"/>
+        <result column="img" property="img"/>
+        <result column="description" property="description"/>
+        <result column="insert_time" property="insertTime"/>
+        <result column="update_time" property="updateTime"/>
+        <association property="id" column="id" autoMapping="true">
+            <result column="charge" property="charge"/>
+            <result column="talk_total" property="talkTotal"/>
+        </association>
+    </resultMap>
+
+    <select id="findAllUsers" resultType="com.youye.model.User">
+        SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total
+        FROM user
+        LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id
+    </select>
+
+</mapper>

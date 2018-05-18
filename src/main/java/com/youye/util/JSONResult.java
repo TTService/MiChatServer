@@ -1,11 +1,11 @@
-package com.youye.jwt.util;
+package com.youye.util;
 
 import org.json.JSONObject;
 
 /**
  * **********************************************
  * <p/>
- * Date: 2018-05-04 16:10
+ * Date: 2018-05-07 16:26
  * <p/>
  * Author: SinPingWu
  * <p/>

@@ -1,13 +1,16 @@
 package com.youye.jwt;
 
-import com.youye.jwt.token.TokenAuthenticationService;
-import com.youye.jwt.util.JSONResult;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.youye.jwt.token.TokenAuthenticationService;
+import com.youye.jwt.token.TokenManager;
+import com.youye.jwt.token.TokenModel;
+import com.youye.util.ErrCode;
+import com.youye.util.JSONResult;
 import java.io.IOException;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.JSONObject;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,9 +35,12 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
  */
 public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    public LoginFilter(String url, AuthenticationManager authenticationManager) {
+    private TokenManager tokenManager;
+
+    public LoginFilter(String url, AuthenticationManager authenticationManager, TokenManager tokenManager) {
         super(new AntPathRequestMatcher(url));
         setAuthenticationManager(authenticationManager);
+        this.tokenManager = tokenManager;
     }
 
     @Override
@@ -42,20 +48,21 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         HttpServletResponse response)
         throws AuthenticationException, IOException {
         // JSON反序列化成 AccountCredentials
-        AccountCredential creds = new ObjectMapper().readValue(request.getInputStream(), AccountCredential.class);
+        AccountCredential cred = new ObjectMapper().readValue(request.getInputStream(), AccountCredential.class);
 
         // 返回一个验证令牌
-        return getAuthenticationManager().authenticate(
-            new UsernamePasswordAuthenticationToken(
-                creds.getUsername(),
-                creds.getPassword()
-            )
-        );
+        return getAuthenticationManager()
+            .authenticate(new UsernamePasswordAuthenticationToken(cred.getUsername(), cred.getPassword()));
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
-        TokenAuthenticationService.addAuthentication(res, auth.getName());
+    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
+        throws IOException, ServletException {
+        //TokenAuthenticationService.addAuthentication(res, auth.getName());
+        TokenModel tokenModel = tokenManager.createToken(auth.getName());
+        req.setAttribute("username", tokenModel.getUsername());
+        req.setAttribute("token", tokenModel.getToken());
+        chain.doFilter(req, res);
     }
 
     @Override
@@ -63,6 +70,6 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getOutputStream().println(JSONResult
-            .fillResultString(500, "Internal Server Error!!!", JSONObject.NULL));
+            .fillResultString(ErrCode.BAD_REQUEST, failed.getMessage(), ""));
     }
 }

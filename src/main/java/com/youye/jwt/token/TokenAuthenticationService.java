@@ -1,7 +1,8 @@
 package com.youye.jwt.token;
 
-import com.youye.jwt.util.JSONResult;
+import com.youye.util.JSONResult;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public class TokenAuthenticationService {
 
     static final long EXPIRATIONTIME = 432_000_000;     // 5天
+//    static final long EXPIRATIONTIME = 60_000;     // 1分钟
     static final String SECRET = "P@ssw02d";            // JWT密码
     static final String TOKEN_PREFIX = "Bearer";        // Token前缀
     static final String HEADER_STRING = "Authorization";// 存放Token的Header Key
@@ -53,8 +55,9 @@ public class TokenAuthenticationService {
         try {
             response.setContentType("application/json");
             response.setStatus(HttpServletResponse.SC_OK);
-            response.getOutputStream().println(JSONResult.fillResultString(0, "", JWT));
-        } catch (IOException e) {
+            response.setHeader("token", JWT);
+            //response.getOutputStream().println(JSONResult.fillResultString(0, "", JWT));
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -64,13 +67,23 @@ public class TokenAuthenticationService {
         String token = request.getHeader(HEADER_STRING);
 
         if (token != null) {
-            // 解析 Token
-            Claims claims = Jwts.parser()
-                // 验签
-                .setSigningKey(SECRET)
-                // 去掉 Bearer
-                .parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
-                .getBody();
+
+            Claims claims;
+            try {
+                // 解析 Token
+                claims = Jwts.parser()
+                    // 验签
+                    .setSigningKey(SECRET)
+                    // 去掉 Bearer
+                    //.parseClaimsJws(token.replace(TOKEN_PREFIX, ""))
+                    .parseClaimsJws(token)
+                    .getBody();
+            } catch (ExpiredJwtException e) {
+                claims = null;
+            }
+
+            if (claims == null)
+                return null;
 
             // 拿用户名
             String user = claims.getSubject();
@@ -80,9 +93,7 @@ public class TokenAuthenticationService {
                 .commaSeparatedStringToAuthorityList((String) claims.get("authorities"));
 
             // 返回验证令牌
-            return user != null ?
-                new UsernamePasswordAuthenticationToken(user, null, authorities) :
-                null;
+            return user != null ? new UsernamePasswordAuthenticationToken(user, null, authorities) : null;
         }
         return null;
     }
