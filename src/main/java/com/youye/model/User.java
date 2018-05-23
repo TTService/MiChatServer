@@ -29,6 +29,8 @@ public class User {
     private Integer state;
     private String img;
     private String address;
+    private String mobile;
+    private String email;
     private String description;
 
     private Integer charge;
@@ -116,6 +118,22 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getDescription() {
