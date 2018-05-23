@@ -2,6 +2,7 @@ package com.youye.service;
 
 import com.youye.model.User;
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * **********************************************
@@ -19,6 +20,24 @@ import java.util.List;
  * **********************************************
  */
 public interface UserService {
+
+    void addUser(User user);
+
+    /**
+     * 根据用户ID或用户名删除用户
+     */
+    boolean deleteUserByIdOrUsername(Integer userId, String username);
+
+    /**
+     * 修改用户信息,不包括密码，手机号码
+     */
+    boolean updateUser(User user);
+
+    boolean updatePassword(String password, Long userId);
+
+    boolean updateMobile(String mobile, Long userId);
+
+    boolean updateEmail(String email, Long userId);
 
     User findOneById(Integer userId);
 

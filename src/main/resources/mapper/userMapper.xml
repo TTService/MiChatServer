@@ -20,6 +20,167 @@
         </association>
     </resultMap>
 
+    <!-- 添加用户-->
+    <insert id="addUser" useGeneratedKeys="true" keyProperty="id"
+        parameterType="com.youye.model.User">
+        insert into admin_user
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="username != null">
+                , username
+            </if>
+            <if test="password != null">
+                , password
+            </if>
+            <if test="nickName != null">
+                , nick_name
+            </if>
+            <if test="sex != null">
+                , sex
+            </if>
+            <if test="age != null">
+                , age
+            </if>
+            <if test="role != null">
+                , role
+            </if>
+            <if test="state != null">
+                , state
+            </if>
+            <if test="img != null">
+                , img
+            </if>
+            <if test="address != null">
+                , address
+            </if>
+            <if test="mobile != null">
+                , mobile
+            </if>
+            <if test="email != null">
+                , email
+            </if>
+            <if test="description != null">
+                , description
+            </if>
+            <if test="insertTime != null">
+                , insert_time
+            </if>
+            <if test="updateTime != null">
+                , update_time
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="username != null">
+                , #{username}
+            </if>
+            <if test="password != null">
+                , #{password}
+            </if>
+            <if test="nickName != null">
+                , #{nickName}
+            </if>
+            <if test="sex != null">
+                , #{sex}
+            </if>
+            <if test="age != null">
+                , #{age}
+            </if>
+            <if test="role != null">
+                , #{role}
+            </if>
+            <if test="state != null">
+                , #{state}
+            </if>
+            <if test="img != null">
+                , #{img}
+            </if>
+            <if test="address != null">
+                , #{address}
+            </if>
+            <if test="mobile != null">
+                , #{mobile}
+            </if>
+            <if test="email != null">
+                , #{email}
+            </if>
+            <if test="description != null">
+                , #{description}
+            </if>
+            <if test="insertTime != null">
+                , #{insertTime}
+            </if>
+            <if test="updateTime != null">
+                , #{updateTime}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <delete id="deleteUserByIdOrUsername">
+        delete from admin_user
+        <trim prefix="where" prefixOverrides="AND |OR">
+            <if test="userId != null">
+                AND id = #{userId}
+            </if>
+            <if test="username != null">
+                OR username = #{username}
+            </if>
+        </trim>
+    </delete>
+
+    <!-- 修改用户信息,不包括密码，手机号码, 邮箱-->
+    <update id="updateUser" parameterType="com.youye.model.User">
+        update admin_user
+        <trim prefix="set" prefixOverrides=",">
+            <if test="nickName != null">
+                , nick_name = #{nickName}
+            </if>
+            <if test="sex != null">
+                , sex = #{sex}
+            </if>
+            <if test="age != null">
+                , age = #{age}
+            </if>
+            <if test="role != null">
+                , role = #{role}
+            </if>
+            <if test="state != null">
+                , state = #{state}
+            </if>
+            <if test="img != null">
+                , img = #{img}
+            </if>
+            <if test="address != null">
+                , address = #{address}
+            </if>
+            <if test="description != null">
+                , description = #{description}
+            </if>
+            <if test="email != null">
+                , email = #{email}
+            </if>
+            <if test="updateTime != null">
+                , update_time = #{updateTime}
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updatePassword">
+        update admin_user set password = #{password} where id = #{userId}
+    </update>
+
+    <update id="updateMobile">
+        update admin_user set mobile = #{mobile} where id = #{userId}
+    </update>
+
+    <update id="updateEmail">
+        update admin_user set email = #{email} where id = #{userId}
+    </update>
+
     <select id="findAllUsers" resultType="com.youye.model.User">
         SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total
         FROM user

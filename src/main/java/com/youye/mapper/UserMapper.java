@@ -24,12 +24,35 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface UserMapper {
 
-    @Select("SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id" +
-     " where admin_user.id = #{userId}")
+    void addUser(User user);
+
+    /**
+     * 根据用户ID或用户名删除用户
+     */
+    void deleteUserByIdOrUsername(@Param("userId") Integer userId,
+        @Param("username") String username);
+
+    /**
+     * 修改用户信息,不包括密码，手机号码
+     */
+    void updateUser(User user);
+
+    void updatePassword(@Param("password") String password, @Param("userId") Long userId);
+
+    void updateMobile(@Param("mobile") String mobile, @Param("userId") Long userId);
+
+    void updateEmail(@Param("email") String email, @Param("userId") Long userId);
+
+    @Select(
+        "SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id"
+            +
+            " where admin_user.id = #{userId}")
     public User findOneById(@Param("userId") Integer userId);
 
-    @Select("SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id" +
-        " where admin_user.username = #{username}")
+    @Select(
+        "SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id"
+            +
+            " where admin_user.username = #{username}")
     public User findOneByUsername(@Param("username") String username);
 
     public List<User> findAllUsers();

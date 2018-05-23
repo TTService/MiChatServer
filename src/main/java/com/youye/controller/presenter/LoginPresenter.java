@@ -62,9 +62,11 @@ public class LoginPresenter {
         }
 
         String nickName = user.getNickName();
-        if (StringUtil.isEmpty(nickName)) {
+        /*if (StringUtil.isEmpty(nickName)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "请填写昵称");
-        }
+        }*/
+        if (nickName == null)
+            user.setNickName(mobile);
 
         return null;
     }

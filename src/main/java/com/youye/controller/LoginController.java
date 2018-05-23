@@ -17,8 +17,10 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -75,19 +77,30 @@ public class LoginController implements ILoginPresenter {
      * 6、服务端保存用户信息。
      */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    public ResultInfo reigster(@ModelAttribute User user) {
-        if (user == null)
-            return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
+    @Transactional
+    public ResultInfo register(@RequestBody User user) {
+        try {
+            if (user == null)
+                return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
 
-        ResultInfo resultInfo = mPresenter.isValidForAddUser(user);
-        if (resultInfo != null)
-            return resultInfo;
+            ResultInfo resultInfo = mPresenter.isValidForAddUser(user);
+            if (resultInfo != null)
+                return resultInfo;
 
-        Calendar calendar = Calendar.getInstance();
-        Date date = calendar.getTime();
-        user.setInsertTime(date);
-        user.setUpdateTime(date);
-        return null;
+            Calendar calendar = Calendar.getInstance();
+            Date date = calendar.getTime();
+            user.setInsertTime(date);
+            user.setUpdateTime(date);
+
+            userService.addUser(user);
+
+            if (user.getId() <= 0)
+                throw new RuntimeException("");
+
+            return new ResultInfo(ErrCode.OK, user, "注册成功");
+        } catch (Exception e) {
+            return new ResultInfo(ErrCode.INTERNAL_SERVER_ERROR, "", "注册失败");
+        }
     }
 
     /**
