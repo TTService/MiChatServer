@@ -1,8 +1,8 @@
 package com.youye.service.impl;
 
 import com.youye.mapper.UserMapper;
-import com.youye.model.User;
-import com.youye.service.UserService;
+import com.youye.model.UserInfo;
+import com.youye.service.UserInfoService;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,8 +26,8 @@ import org.springframework.stereotype.Service;
  * <p/>
  * **********************************************
  */
-@Service(value = "userService")
-public class UserServiceImpl implements UserService {
+@Service(value = "userInfoService")
+public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -36,9 +36,9 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Override
-    public void addUser(User user) {
+    public void addUser(UserInfo userInfo) {
         try {
-            userMapper.addUser(user);
+            userMapper.addUser(userInfo);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -55,9 +55,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUser(User user) {
+    public boolean updateUserBasicInfo(UserInfo userInfo) {
         try {
-            userMapper.updateUser(user);
+            userMapper.updateUser(userInfo);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean updateFormalUsername(UserInfo userInfo) {
+        try {
+            userMapper.updateUsername(userInfo);
             return true;
         } catch (Exception e) {
             return false;
@@ -95,28 +105,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findOneById(Integer userId) {
+    public UserInfo findOneById(Integer userId) {
         return userMapper.findOneById(userId);
     }
 
     @Override
-    public User findOneByUsername(String username) {
+    public UserInfo findOneByUsername(String username) {
         return userMapper.findOneByUsername(username);
     }
 
     @Override
-    public List<User> findAllUser() {
+    public UserInfo findOneByMobile(String mobile) {
+        return userMapper.findOneByMobile(mobile);
+    }
+
+    @Override
+    public List<UserInfo> findAllUser() {
         //return userMapper.findAllUsers();
         return null;
     }
 
     @Override
-    public List<User> findAllAnchor() {
+    public List<UserInfo> findAllAnchor() {
         return userMapper.findAllUsers();
     }
 
     @Override
-    public List<User> findAllAdmin() {
+    public List<UserInfo> findAllAdmin() {
         return null;
     }
 

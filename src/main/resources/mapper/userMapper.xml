@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.youye.mapper.UserMapper">
 
-    <resultMap id="userInfo" type="com.youye.model.User">
+    <resultMap id="userInfo" type="com.youye.model.UserInfo">
         <id column="id" property="id"/>
         <result column="username" property="username"/>
         <result column="nick_name" property="nickName"/>
@@ -22,7 +22,10 @@
 
     <!-- 添加用户-->
     <insert id="addUser" useGeneratedKeys="true" keyProperty="id"
-        parameterType="com.youye.model.User">
+        parameterType="com.youye.model.UserInfo">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
         insert into admin_user
         (
         <trim prefix="" prefixOverrides=",">
@@ -132,7 +135,7 @@
     </delete>
 
     <!-- 修改用户信息,不包括密码，手机号码, 邮箱-->
-    <update id="updateUser" parameterType="com.youye.model.User">
+    <update id="updateUser" parameterType="com.youye.model.UserInfo">
         update admin_user
         <trim prefix="set" prefixOverrides=",">
             <if test="nickName != null">
@@ -143,15 +146,6 @@
             </if>
             <if test="age != null">
                 , age = #{age}
-            </if>
-            <if test="role != null">
-                , role = #{role}
-            </if>
-            <if test="state != null">
-                , state = #{state}
-            </if>
-            <if test="img != null">
-                , img = #{img}
             </if>
             <if test="address != null">
                 , address = #{address}
@@ -169,6 +163,11 @@
         where id = #{id}
     </update>
 
+    <!-- 修改用户名-->
+    <update id="updateUsername" parameterType="com.youye.model.UserInfo">
+        update admin_user set username = #{username} where id=#{id}
+    </update>
+
     <update id="updatePassword">
         update admin_user set password = #{password} where id = #{userId}
     </update>
@@ -181,9 +180,9 @@
         update admin_user set email = #{email} where id = #{userId}
     </update>
 
-    <select id="findAllUsers" resultType="com.youye.model.User">
+    <select id="findAllUsers" resultType="com.youye.model.UserInfo">
         SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total
-        FROM user
+        FROM admin_user
         LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id
     </select>
 

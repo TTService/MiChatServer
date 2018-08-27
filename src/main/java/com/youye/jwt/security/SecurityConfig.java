@@ -33,11 +33,15 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
     private UserDetailsService userDetailsService;
 
-    @Autowired
     private TokenManager tokenManager;
+
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService, TokenManager tokenManager) {
+        this.userDetailsService = userDetailsService;
+        this.tokenManager = tokenManager;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
@@ -55,8 +59,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             // 所有 / 的所有请求 都放行
             .antMatchers("/").permitAll()
             .antMatchers("/banner/**").permitAll()
+            .antMatchers("/verification/**").permitAll()
+            .antMatchers("/register").permitAll()
+            .antMatchers("/user/recommend").permitAll()
+            .antMatchers("/user/new").permitAll()
+            .antMatchers("/user/active").permitAll()
             // 所有 /login 的POST请求 都放行
-            .antMatchers(HttpMethod.POST, "/user/login").permitAll()
+            .antMatchers(HttpMethod.POST, "/login").permitAll()
             // 添加权限检测
             //.antMatchers("/hello").hasAuthority("AUTH_WRITE")
             // 角色检测
@@ -65,7 +74,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .anyRequest().authenticated()
             .and()
             // 添加一个过滤器 所有访问 /login 的请求交给 LoginFilter 来处理 这个类处理所有的JWT相关内容
-            .addFilterBefore(new LoginFilter("/user/login", authenticationManager(), tokenManager), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new LoginFilter("/login", authenticationManager(), tokenManager), UsernamePasswordAuthenticationFilter.class)
             // 添加一个过滤器验证其他请求的Token是否合法
             .addFilterBefore(new AuthenticationFilter(tokenManager), BasicAuthenticationFilter.class);
     }

@@ -1,6 +1,7 @@
 package com.youye.jwt.token;
 
-import com.youye.service.UserService;
+import com.youye.util.AESUtil;
+import com.youye.util.StringUtil;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,12 @@ import org.springframework.stereotype.Component;
 @Component(value = "tokenManager")
 public class RedisTokenManager implements TokenManager {
 
-    @Autowired
-    private UserService userService;
-
     private RedisTemplate<Object, Object> redis;
-    private static final int EXPIRATION_TIME = 72;
+    private static final int EXPIRATION_TIME = 24 * 3;
 
-    private static final String SALT = "com.michat@#_@#";
+    private static final String SALT = "com.michat@#_@#_";
+
+    private static final String SPACER = "_#@#_";
 
     @Autowired
     public void setRedis(RedisTemplate<Object, Object> redis) {
@@ -42,14 +42,21 @@ public class RedisTokenManager implements TokenManager {
     }
 
     public TokenModel createToken(String username) {
-        //使用uuid作为源token
-        String token = UUID.randomUUID().toString().replace("-", "");
+        // 创建随机的UUID
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        // uuid 通过分隔符与username 进行拼接
+        String tempToken = username + SPACER + uuid;
+
+        // 对tempToken进行AES加密生成传输token数据
+        String token = AESUtil.aesEncode(tempToken);
+        if (token == null)
+            token = tempToken;
 
         TokenModel model = new TokenModel(username, token);
 
         String key = SALT + username;
-        //存储到redis并设置过期时间
-        redis.boundValueOps(key).set(token, 72, TimeUnit.HOURS);
+        //原始token存储到redis并设置过期时间
+        redis.boundValueOps(key).set(tempToken, EXPIRATION_TIME, TimeUnit.HOURS);
         return model;
     }
 
@@ -57,7 +64,13 @@ public class RedisTokenManager implements TokenManager {
         if (authentication == null || authentication.length() == 0) {
             return null;
         }
-        String[] param = authentication.split("_");
+
+        // TODO 对token 进行解密
+        String token = AESUtil.aesDecode(authentication);
+        if (token == null)
+            token = authentication;
+
+        String[] param = token.split(SPACER);
         if (param.length != 2) {
             return null;
         }
@@ -66,7 +79,7 @@ public class RedisTokenManager implements TokenManager {
         String token = param[1];
         return new TokenModel(userId, token);*/
         String username = param[0];
-        String token = param[1];
+        //String token = param[1];
         return new TokenModel(username, token);
     }
 
@@ -74,21 +87,23 @@ public class RedisTokenManager implements TokenManager {
         if (model == null) {
             return false;
         }
-        //String token = redis.boundValueOps(model.getUserId()).get();
-        String token;
+
         try {
-            //token = (String) redis.boundValueOps(model.getUserId()).get();
             String key = SALT + model.getUsername();
-            token = (String) redis.boundValueOps(key).get();
+            //String token = redis.boundValueOps(model.getUserId()).get();
+            //String token = (String) redis.boundValueOps(model.getUserId()).get();
+            String token = (String) redis.boundValueOps(key).get();
+
+            if (StringUtil.isEmpty(token) || !token.equals(model.getToken())) {
+                return false;
+            }
+
+            //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
+            redis.boundValueOps(key).expire(EXPIRATION_TIME, TimeUnit.HOURS);
+            return true;
         } catch (Exception e) {
-            token = null;
-        }
-        if (token == null || !token.equals(model.getToken())) {
             return false;
         }
-        //如果验证成功，说明此用户进行了一次有效操作，延长token的过期时间
-        redis.boundValueOps(model.getUserId()).expire(72, TimeUnit.HOURS);
-        return true;
     }
 
     public void deleteToken(long userId) {

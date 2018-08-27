@@ -1,7 +1,7 @@
 package com.youye.jwt.security;
 
 import com.youye.mapper.UserMapper;
-import com.youye.model.User;
+import com.youye.model.UserInfo;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class MiChatUserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) {
-        User user = userMapper.findOneByUsername(s);
+        UserInfo user = userMapper.findOneByUsername(s);
         if (user == null)
             return null;
 

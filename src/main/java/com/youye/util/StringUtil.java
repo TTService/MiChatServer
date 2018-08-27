@@ -30,8 +30,6 @@ public class StringUtil {
 
     /**
      * 下划线转驼峰
-     * @param str
-     * @return
      */
     public static String lineToHump(String str) {
         if (null == str || "".equals(str)) {
@@ -53,8 +51,6 @@ public class StringUtil {
 
     /**
      * 驼峰转下划线,效率比上面高
-     * @param str
-     * @return
      */
     public static String humpToLine(String str) {
         Matcher matcher = humpPattern.matcher(str);
@@ -68,8 +64,6 @@ public class StringUtil {
 
     /**
      * 驼峰转下划线(简单写法，效率低于{@link #humpToLine(String)})
-     * @param str
-     * @return
      */
     public static String humpToLine2(String str) {
         return str.replaceAll("[A-Z]", "_$0").toLowerCase();
@@ -77,8 +71,6 @@ public class StringUtil {
 
     /**
      * 首字母转小写
-     * @param s
-     * @return
      */
     public static String toLowerCaseFirstOne(String s) {
         if (StringUtil.isBlank(s)) {
@@ -93,8 +85,6 @@ public class StringUtil {
 
     /**
      * 首字母转大写
-     * @param s
-     * @return
      */
     public static String toUpperCaseFirstOne(String s) {
         if (StringUtil.isBlank(s)) {
@@ -109,8 +99,6 @@ public class StringUtil {
 
     /**
      * object转String
-     * @param object
-     * @return
      */
     public static String getString(Object object) {
         return getString(object, "");
@@ -129,8 +117,6 @@ public class StringUtil {
 
     /**
      * object转Integer
-     * @param object
-     * @return
      */
     public static int getInt(Object object) {
         return getInt(object, -1);
@@ -149,8 +135,6 @@ public class StringUtil {
 
     /**
      * object转Boolean
-     * @param object
-     * @return
      */
     public static boolean getBoolean(Object object) {
         return getBoolean(object, false);
@@ -1770,7 +1754,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if (Character.isLetter(str.charAt(i)) == false) {
+            if (!Character.isLetter(str.charAt(i))) {
                 return false;
             }
         }
@@ -1795,7 +1779,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if ((Character.isWhitespace(str.charAt(i)) == false)) {
+            if (!Character.isWhitespace(str.charAt(i))) {
                 return false;
             }
         }
@@ -1820,7 +1804,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if ((Character.isLetter(str.charAt(i)) == false) && (str.charAt(i) != ' ')) {
+            if (!Character.isLetter(str.charAt(i)) && (str.charAt(i) != ' ')) {
                 return false;
             }
         }
@@ -1845,11 +1829,26 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if (Character.isLetterOrDigit(str.charAt(i)) == false) {
+            if (!Character.isLetterOrDigit(str.charAt(i))) {
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * <p>
+     * Checks if the String contains only letters or digits.
+     * </p>
+     *
+     * @param str the String to check
+     * @return <code>true</code> if only contains letters or digits.
+     */
+    public static boolean isLettersOrDigits(String str) {
+        String regEx = "^[0-9a-zA-Z]+$";
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(str);
+        return matcher.matches();
     }
 
     /**
@@ -1870,7 +1869,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if ((Character.isLetterOrDigit(str.charAt(i)) == false) && (str.charAt(i) != ' ')) {
+            if (!Character.isLetterOrDigit(str.charAt(i)) && (str.charAt(i) != ' ')) {
                 return false;
             }
         }
@@ -1895,7 +1894,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if (Character.isDigit(str.charAt(i)) == false) {
+            if (!Character.isDigit(str.charAt(i))) {
                 return false;
             }
         }
@@ -1920,7 +1919,7 @@ public class StringUtil {
         }
         int sz = str.length();
         for (int i = 0; i < sz; i++) {
-            if ((Character.isDigit(str.charAt(i)) == false) && (str.charAt(i) != ' ')) {
+            if ((!Character.isDigit(str.charAt(i))) && (str.charAt(i) != ' ')) {
                 return false;
             }
         }
@@ -2513,7 +2512,7 @@ public class StringUtil {
         if (str == null || searchStr == null) {
             return false;
         }
-        return str.indexOf(searchStr) >= 0;
+        return str.contains(searchStr);
     }
 
     public static boolean isEmail(String email) {

@@ -1,6 +1,6 @@
 package com.youye.controller.presenter;
 
-import com.youye.model.User;
+import com.youye.model.UserInfo;
 import com.youye.model.result.ResultInfo;
 import com.youye.util.ErrCode;
 import com.youye.util.StringUtil;
@@ -32,7 +32,7 @@ public class LoginPresenter {
         this.mCallback = callback;
     }
 
-    public ResultInfo isValidForAddUser(User user) {
+    public ResultInfo isValidForAddUser(UserInfo user) {
         if (user == null)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
 
@@ -57,7 +57,7 @@ public class LoginPresenter {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "请填写密码");
         }
 
-        if (password.length() < 6 || password.length() > 18) {
+        if (!isValidPassword(password)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "密码长度为6~18位");
         }
 
@@ -72,7 +72,7 @@ public class LoginPresenter {
     }
 
 
-    public boolean isValidPassword(String password) {
+    private boolean isValidPassword(String password) {
         if (StringUtil.isEmpty(password)) {
             return false;
         }

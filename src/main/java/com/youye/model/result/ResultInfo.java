@@ -23,6 +23,14 @@ public class ResultInfo {
 
     public ResultInfo(int code, Object data, String des) {
         this.code = code;
+
+        if (data instanceof String) {
+            String dataStr = (String) data;
+            if (dataStr.trim().equals("")) {
+                data = null;
+            }
+        }
+
         this.data = data;
         this.des = des;
     }

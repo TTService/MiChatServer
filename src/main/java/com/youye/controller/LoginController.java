@@ -1,13 +1,14 @@
 package com.youye.controller;
 
-import com.youye.constant.ResultConstant;
 import com.youye.controller.presenter.LoginPresenter;
 import com.youye.controller.presenter.LoginPresenter.ILoginPresenter;
-import com.youye.model.User;
+import com.youye.jwt.token.TokenManager;
+import com.youye.jwt.token.TokenModel;
+import com.youye.model.UserInfo;
 import com.youye.model.result.ResultInfo;
-import com.youye.service.UserService;
+import com.youye.redis.RedisUtil;
+import com.youye.service.UserInfoService;
 import com.youye.util.ErrCode;
-import com.youye.util.JSONResult;
 import com.youye.util.StringUtil;
 import com.youye.util.VerificationCodeUtil;
 import java.util.Calendar;
@@ -18,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,15 +42,19 @@ import org.springframework.web.bind.annotation.RestController;
  * **********************************************
  */
 @RestController
-@RequestMapping(value = "/user")
 public class LoginController implements ILoginPresenter {
 
-    @Autowired
-    private UserService userService;
+    private UserInfoService userInfoService;
+    private RedisUtil redisUtil;
+    private TokenManager tokenManager;
 
     private LoginPresenter mPresenter;
 
-    public LoginController() {
+    @Autowired
+    public LoginController(UserInfoService userInfoService, RedisUtil redisUtil, TokenManager tokenManager) {
+        this.userInfoService = userInfoService;
+        this.redisUtil = redisUtil;
+        this.tokenManager = tokenManager;
         mPresenter = new LoginPresenter(this);
     }
 
@@ -61,7 +65,7 @@ public class LoginController implements ILoginPresenter {
         if (username == null || token == null)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "用户验证错误");
 
-        User user = userService.findOneByUsername(username);
+        UserInfo user = userInfoService.findOneByUsername(username);
         response.setHeader("token", token);
 
         return new ResultInfo(ErrCode.OK, user, "login success");
@@ -78,7 +82,7 @@ public class LoginController implements ILoginPresenter {
      */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @Transactional
-    public ResultInfo register(@RequestBody User user) {
+    public ResultInfo register(@RequestBody UserInfo user, HttpServletRequest request) {
         try {
             if (user == null)
                 return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
@@ -92,11 +96,15 @@ public class LoginController implements ILoginPresenter {
             user.setInsertTime(date);
             user.setUpdateTime(date);
 
-            userService.addUser(user);
+            userInfoService.addUser(user);
 
-            if (user.getId() <= 0)
+            if (user.getId() == null || user.getId() <= 0)
                 throw new RuntimeException("");
 
+            TokenModel tokenModel = tokenManager.createToken(user.getUsername());
+            //response.setHeader("token", tokenModel.getToken());
+
+            request.setAttribute("token", tokenModel.getToken());
             return new ResultInfo(ErrCode.OK, user, "注册成功");
         } catch (Exception e) {
             return new ResultInfo(ErrCode.INTERNAL_SERVER_ERROR, "", "注册失败");
@@ -104,21 +112,41 @@ public class LoginController implements ILoginPresenter {
     }
 
     /**
-     * 获取手机短信验证码
+     * 获取手机短信验证码。
+     * 1. 判断该手机号码在数据库中是否被使用，如果有则不允许再用于用户注册
+     *
+     * 如何防止短信防刷：
+     * 1、时间间隔：60秒内只能发送一次
+     * 2、手机号限制：同一手机号，24小时内不能超过5条
+     * 3、图片验证码机制：验证通过才发送验证码
      */
     @RequestMapping(value = "/verification/{mobile}")
     public ResultInfo  getPhoneVerificationCode(@PathVariable String mobile) {
         if (!StringUtil.isMobileNo(mobile)) {
-            return new ResultInfo(ErrCode.BAD_REQUEST, "", "手机号码格式不正确");
+            return new ResultInfo(ErrCode.BAD_REQUEST, null, "手机号码格式不正确");
         }
-        //TODO 判断Redis中是否有该号码相对于的注册验证码，如果有则拒绝生成，提醒用户提交频繁，或等稍后再试
+
+        UserInfo userInfo = userInfoService.findOneByMobile(mobile);
+        if (userInfo != null) {
+            return new ResultInfo(ErrCode.BAD_REQUEST, null, "该号码已被使用");
+        }
+
+        //TODO 判断一分钟内是否生成过该号码对应的验证码，如果有则拒绝生成，提醒用户提交频繁，或等稍后再试
+        if (redisUtil.containsValueKey("verificationCodeCreated:" + mobile)) {
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "验证码已发送，请查收短信或稍后再试");
+        }
 
         // 生成验证码
         String verificationCode = VerificationCodeUtil.generateIntVerificationCode(6);
-
         //TODO 将验证码与手机号码关联存于Redis 中
+        redisUtil.cacheValue("verificationCode:" + mobile, verificationCode, 10);
+        redisUtil.cacheValue("verificationCodeCreated:" + mobile, verificationCode, 60);
         //TODO 调用 发送短信接口，发送短信
+        /*SmsSingleSenderResult senderResult = SMSSendManager.getInstance().sendSMSCode("86", "18326189515", "老婆, 验证码为" + verificationCode);
 
+        if (senderResult != null) {
+            System.out.println(senderResult.toString());
+        }*/
         Map<String, String> result = new HashMap<>();
         result.put("mobile", mobile);
         result.put("code", verificationCode);
@@ -139,21 +167,15 @@ public class LoginController implements ILoginPresenter {
         }
 
         //TODO 根据手机号从Redis中获取验证码，并比较参数中的验证码，相同则成功，否则失败。
-        //TODO 成功则删除Redis中对应号码的记录。 是否需要？？？
-        //TODO 将手机号码进行加密返回
+        if (redisUtil.containsValueKey("verificationCode:" + mobile)) {
 
-        return new ResultInfo(ErrCode.OK, mobile, "注册码校验成功");
-    }
-
-
-
-    @RequestMapping(value = "/hello", method = RequestMethod.POST)
-    public String hello() {
-        return JSONResult.fillResultString(0, "", "hello");
-    }
-
-    @RequestMapping(value = "/world", method = RequestMethod.POST)
-    public String world() {
-        return JSONResult.fillResultString(0, "", "world");
+            String verificationCode = redisUtil.getValue("verificationCode:" + mobile);
+            //TODO 成功则删除Redis中对应号码的记录。 是否需要？？？
+            //TODO 将手机号码进行加密返回
+            if (verificationCode.equalsIgnoreCase(code)) {
+                return new ResultInfo(ErrCode.OK, mobile, "注册码校验成功");
+            }
+        }
+        return new ResultInfo(ErrCode.BAD_REQUEST, "", "验证码错误");
     }
 }

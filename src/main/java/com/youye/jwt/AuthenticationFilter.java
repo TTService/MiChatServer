@@ -1,5 +1,7 @@
 package com.youye.jwt;
 
+import com.youye.common.Global;
+import com.youye.common.Global.Param;
 import com.youye.jwt.token.TokenManager;
 import com.youye.jwt.token.TokenModel;
 import java.io.IOException;
@@ -47,6 +49,7 @@ public class AuthenticationFilter extends GenericFilterBean {
         TokenModel tokenModel = tokenManager.getToken(authentication);
         boolean isChecked = tokenManager.checkToken(tokenModel);
         if (isChecked) {
+            request.setAttribute(Param.USERNAME, tokenModel.getUsername());
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(tokenModel.getUsername(), null, null);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }

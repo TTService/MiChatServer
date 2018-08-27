@@ -1,8 +1,7 @@
 package com.youye.service;
 
-import com.youye.model.User;
+import com.youye.model.UserInfo;
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * **********************************************
@@ -19,9 +18,9 @@ import org.apache.ibatis.annotations.Param;
  * <p/>
  * **********************************************
  */
-public interface UserService {
+public interface UserInfoService {
 
-    void addUser(User user);
+    void addUser(UserInfo userInfo);
 
     /**
      * 根据用户ID或用户名删除用户
@@ -29,9 +28,15 @@ public interface UserService {
     boolean deleteUserByIdOrUsername(Integer userId, String username);
 
     /**
-     * 修改用户信息,不包括密码，手机号码
+     * 修改用户基本信息,不包括密码，手机号码, 用户名, 角色类型, 使用状态, 图像
+     *
      */
-    boolean updateUser(User user);
+    boolean updateUserBasicInfo(UserInfo userInfo);
+
+    /**
+     * 修改用户名
+     */
+    boolean updateFormalUsername(UserInfo userInfo);
 
     boolean updatePassword(String password, Long userId);
 
@@ -39,24 +44,30 @@ public interface UserService {
 
     boolean updateEmail(String email, Long userId);
 
-    User findOneById(Integer userId);
+    UserInfo findOneById(Integer userId);
 
-    User findOneByUsername(String username);
+    UserInfo findOneByUsername(String username);
+
+    /**
+     * 通过用户的手机号码来查找用户，理论上一个手机号码在系统只允许指定一个用户。
+     * @param mobile 用户的手机号码，或者用户名
+     */
+    UserInfo findOneByMobile(String mobile);
 
     /**
      * 查找所有用户
      */
-    List<User> findAllUser();
+    List<UserInfo> findAllUser();
 
     /**
      * 查找所有主播
      */
-    List<User> findAllAnchor();
+    List<UserInfo> findAllAnchor();
 
     /**
      * 查找所有管理员用户
      */
-    List<User> findAllAdmin();
+    List<UserInfo> findAllAdmin();
 
     /**
      * 创建用户

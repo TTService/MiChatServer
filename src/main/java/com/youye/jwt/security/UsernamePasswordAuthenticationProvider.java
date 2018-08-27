@@ -45,15 +45,11 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     }
 
     @Override
-    public boolean supports(Class<?> authencation) {
-        return authencation.equals(UsernamePasswordAuthenticationToken.class);
+    public boolean supports(Class<?> authentication) {
+        return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 
-    public UserDetailsService getUserDetailService() {
-        return userDetailService;
-    }
-
-    public void setUserDetailService(UserDetailsService userDetailService) {
+    void setUserDetailService(UserDetailsService userDetailService) {
         this.userDetailService = userDetailService;
     }
 }

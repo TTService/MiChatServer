@@ -17,7 +17,7 @@ import java.util.Date;
  * <p/>
  * **********************************************
  */
-public class User {
+public class UserInfo {
 
     private Long id;
     private String username;
@@ -27,6 +27,11 @@ public class User {
     private Integer age;
     private Integer role;
     private Integer state;
+
+    /**
+     * 用户名是否已修改
+     */
+    private Integer usernameModified;
     private String img;
     private String address;
     private String mobile;
@@ -102,6 +107,14 @@ public class User {
 
     public void setState(Integer state) {
         this.state = state;
+    }
+
+    public Integer getUsernameModified() {
+        return usernameModified;
+    }
+
+    public void setUsernameModified(Integer usernameModified) {
+        this.usernameModified = usernameModified;
     }
 
     public String getImg() {

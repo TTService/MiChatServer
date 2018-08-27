@@ -1,7 +1,6 @@
 package com.youye.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.youye.jwt.token.TokenAuthenticationService;
 import com.youye.jwt.token.TokenManager;
 import com.youye.jwt.token.TokenModel;
 import com.youye.util.ErrCode;
@@ -44,11 +43,22 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     }
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request,
-        HttpServletResponse response)
-        throws AuthenticationException, IOException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)  throws AuthenticationException {
         // JSON反序列化成 AccountCredentials
-        AccountCredential cred = new ObjectMapper().readValue(request.getInputStream(), AccountCredential.class);
+        /*String content = CharStreams.toString(new InputStreamReader(request.getInputStream(), "utf-8"));
+        System.out.println(content);*/
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+
+        AccountCredential cred;
+        try {
+            cred = new ObjectMapper().readValue(request.getInputStream(), AccountCredential.class);
+        } catch (Exception e) {
+            cred = new AccountCredential();
+            cred.setUsername(username);
+            cred.setPassword(password);
+        }
 
         // 返回一个验证令牌
         return getAuthenticationManager()
