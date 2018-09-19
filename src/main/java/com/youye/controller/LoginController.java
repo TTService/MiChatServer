@@ -4,7 +4,9 @@ import com.youye.controller.presenter.LoginPresenter;
 import com.youye.controller.presenter.LoginPresenter.ILoginPresenter;
 import com.youye.jwt.token.TokenManager;
 import com.youye.jwt.token.TokenModel;
-import com.youye.model.UserInfo;
+import com.youye.model.user.RegisterVO;
+import com.youye.model.user.UserAuthDO;
+import com.youye.model.user.UserInfoDTO;
 import com.youye.model.result.ResultInfo;
 import com.youye.redis.RedisUtil;
 import com.youye.service.UserInfoService;
@@ -17,6 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class LoginController implements ILoginPresenter {
+    private Logger mLogger = LoggerFactory.getLogger(LoginController.class);
 
     private UserInfoService userInfoService;
     private RedisUtil redisUtil;
@@ -55,19 +60,20 @@ public class LoginController implements ILoginPresenter {
         this.userInfoService = userInfoService;
         this.redisUtil = redisUtil;
         this.tokenManager = tokenManager;
-        mPresenter = new LoginPresenter(this);
+        mPresenter = new LoginPresenter(this, userInfoService);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResultInfo login(HttpServletRequest request, HttpServletResponse response) {
-        String username = (String) request.getAttribute("username");
+        String identifier = (String) request.getAttribute("identifier");
         String token = (String) request.getAttribute("token");
-        if (username == null || token == null)
+        if (identifier == null || token == null)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "用户验证错误");
 
-        UserInfo user = userInfoService.findOneByUsername(username);
+        UserInfoDTO user = userInfoService.findUserInfoByIdentifier(identifier);
+        user.setLogged(1);
+        userInfoService.updateUserLoginState(user.getUserId(), user.getLogged());
         response.setHeader("token", token);
-
         return new ResultInfo(ErrCode.OK, user, "login success");
     }
 
@@ -77,36 +83,42 @@ public class LoginController implements ILoginPresenter {
      * 2、服务端检测手机号码是否合法，是否已被注册，如果都没有则下发注册验证码，并保存下发的验证码；否则提醒用户相关错误。
      * 3、客户端输入验证码，并提交。
      * 4、服务端校验验证码是否与手机号码一致，并检验验证码的有效期。如果一致且在有效期内则通过；否则提醒用户相关错误。
-     * 5、客户端完善注册信息，用户昵称、密码、性别、年龄、图像、地址、邮箱、描述等等。
+     * 5、客户端完善注册信息，用户昵称、密码等等。
      * 6、服务端保存用户信息。
      */
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @Transactional
-    public ResultInfo register(@RequestBody UserInfo user, HttpServletRequest request) {
+    public ResultInfo register(@RequestBody RegisterVO registerVO, HttpServletRequest request) {
         try {
-            if (user == null)
+            if (registerVO == null)
                 return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
 
-            ResultInfo resultInfo = mPresenter.isValidForAddUser(user);
+            ResultInfo resultInfo = mPresenter.isValidForAddUser(registerVO);
             if (resultInfo != null)
                 return resultInfo;
 
             Calendar calendar = Calendar.getInstance();
             Date date = calendar.getTime();
-            user.setInsertTime(date);
-            user.setUpdateTime(date);
+            registerVO.setGmtCreate(date);
+            registerVO.setGmtModified(date);
 
-            userInfoService.addUser(user);
+            boolean isSuccess = userInfoService.createUser(registerVO);
+            if (!isSuccess) {
+                throw new RuntimeException("数据库存储错误");
+            }
+            //userInfoService.addUser(user);
 
-            if (user.getId() == null || user.getId() <= 0)
-                throw new RuntimeException("");
+            if (registerVO.getUserId() <= 0)
+                throw new RuntimeException("创建用户失败");
 
-            TokenModel tokenModel = tokenManager.createToken(user.getUsername());
+
+            TokenModel tokenModel = tokenManager.createToken(registerVO.getIdentify());
             //response.setHeader("token", tokenModel.getToken());
 
             request.setAttribute("token", tokenModel.getToken());
-            return new ResultInfo(ErrCode.OK, user, "注册成功");
+            return new ResultInfo(ErrCode.OK, registerVO, "注册成功");
         } catch (Exception e) {
+            mLogger.error(e.getMessage());
             return new ResultInfo(ErrCode.INTERNAL_SERVER_ERROR, "", "注册失败");
         }
     }
@@ -126,9 +138,9 @@ public class LoginController implements ILoginPresenter {
             return new ResultInfo(ErrCode.BAD_REQUEST, null, "手机号码格式不正确");
         }
 
-        UserInfo userInfo = userInfoService.findOneByMobile(mobile);
+        UserAuthDO userInfo = userInfoService.getAuthByIdentifier(mobile);
         if (userInfo != null) {
-            return new ResultInfo(ErrCode.BAD_REQUEST, null, "该号码已被使用");
+            return new ResultInfo(ErrCode.BAD_REQUEST, null, "该号码已被注册");
         }
 
         //TODO 判断一分钟内是否生成过该号码对应的验证码，如果有则拒绝生成，提醒用户提交频繁，或等稍后再试
@@ -139,7 +151,7 @@ public class LoginController implements ILoginPresenter {
         // 生成验证码
         String verificationCode = VerificationCodeUtil.generateIntVerificationCode(6);
         //TODO 将验证码与手机号码关联存于Redis 中
-        redisUtil.cacheValue("verificationCode:" + mobile, verificationCode, 10);
+        redisUtil.cacheValue("verificationCode:" + mobile, verificationCode, 60 * 10);
         redisUtil.cacheValue("verificationCodeCreated:" + mobile, verificationCode, 60);
         //TODO 调用 发送短信接口，发送短信
         /*SmsSingleSenderResult senderResult = SMSSendManager.getInstance().sendSMSCode("86", "18326189515", "老婆, 验证码为" + verificationCode);

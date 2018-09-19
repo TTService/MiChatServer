@@ -18,10 +18,10 @@ public interface TokenManager {
 
     /**
      * 创建一个token关联上指定用户
-     * @param username 指定用户的username
+     * @param identifier 指定用户的账户名例如username, weChat
      * @return 生成的token
      */
-    public TokenModel createToken(String username);
+    public TokenModel createToken(String identifier);
 
     /**
      * 检查token是否有效

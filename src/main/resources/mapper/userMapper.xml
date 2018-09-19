@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.youye.mapper.UserMapper">
 
-    <resultMap id="userInfo" type="com.youye.model.UserInfo">
+    <resultMap id="userInfo" type="com.youye.model.user.UserInfoDTO">
         <id column="id" property="id"/>
         <result column="username" property="username"/>
         <result column="nick_name" property="nickName"/>
@@ -21,102 +21,66 @@
     </resultMap>
 
     <!-- 添加用户-->
-    <insert id="addUser" useGeneratedKeys="true" keyProperty="id"
-        parameterType="com.youye.model.UserInfo">
-        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+    <insert id="createUser" useGeneratedKeys="true" keyProperty="userId"
+        parameterType="com.youye.model.user.UserDO">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="userId">
             SELECT LAST_INSERT_ID()
         </selectKey>
         insert into admin_user
         (
         <trim prefix="" prefixOverrides=",">
-            <if test="username != null">
-                , username
-            </if>
-            <if test="password != null">
-                , password
-            </if>
-            <if test="nickName != null">
+            <if test="nickname != null">
                 , nick_name
             </if>
-            <if test="sex != null">
-                , sex
+            <if test="logged != null">
+                , is_login
             </if>
             <if test="age != null">
                 , age
             </if>
-            <if test="role != null">
-                , role
+            <if test="height != null">
+                , height
+            </if>
+            <if test="sex != null">
+                , sex
             </if>
             <if test="state != null">
                 , state
             </if>
-            <if test="img != null">
-                , img
+            <if test="gmtCreate != null">
+                , gmt_create
             </if>
-            <if test="address != null">
-                , address
-            </if>
-            <if test="mobile != null">
-                , mobile
-            </if>
-            <if test="email != null">
-                , email
-            </if>
-            <if test="description != null">
-                , description
-            </if>
-            <if test="insertTime != null">
-                , insert_time
-            </if>
-            <if test="updateTime != null">
-                , update_time
+            <if test="gmtModified != null">
+                , gmt_modified
             </if>
         </trim>
         )
         values
         (
         <trim prefix="" prefixOverrides=",">
-            <if test="username != null">
-                , #{username}
+            <if test="nickname != null">
+                , #{nickname}
             </if>
-            <if test="password != null">
-                , #{password}
-            </if>
-            <if test="nickName != null">
-                , #{nickName}
-            </if>
-            <if test="sex != null">
-                , #{sex}
+            <if test="logged != null">
+                , #{logged}
             </if>
             <if test="age != null">
                 , #{age}
             </if>
-            <if test="role != null">
-                , #{role}
+            <if test="height != null">
+                , #{height}
+            </if>
+            <if test="sex != null">
+                , #{sex}
             </if>
             <if test="state != null">
                 , #{state}
             </if>
-            <if test="img != null">
-                , #{img}
+            <if test="gmtCreate != null">
+                , #{gmtCreate}
             </if>
-            <if test="address != null">
-                , #{address}
-            </if>
-            <if test="mobile != null">
-                , #{mobile}
-            </if>
-            <if test="email != null">
-                , #{email}
-            </if>
-            <if test="description != null">
-                , #{description}
-            </if>
-            <if test="insertTime != null">
-                , #{insertTime}
-            </if>
-            <if test="updateTime != null">
-                , #{updateTime}
+            <if test="gmtModified != null">
+                , #{gmtModified}
             </if>
         </trim>
         )
@@ -134,38 +98,27 @@
         </trim>
     </delete>
 
-    <!-- 修改用户信息,不包括密码，手机号码, 邮箱-->
-    <update id="updateUser" parameterType="com.youye.model.UserInfo">
+    <!-- 修改用户基本信息,不包括密码，手机号码, 邮箱-->
+    <update id="updateUserBasicInfo" parameterType="com.youye.model.user.UserDO">
         update admin_user
         <trim prefix="set" prefixOverrides=",">
-            <if test="nickName != null">
-                , nick_name = #{nickName}
-            </if>
-            <if test="sex != null">
-                , sex = #{sex}
+            <if test="nickname != null">
+                , nick_name = #{nickname}
             </if>
             <if test="age != null">
                 , age = #{age}
             </if>
-            <if test="address != null">
-                , address = #{address}
+            <if test="height != null">
+                , height = #{height}
             </if>
-            <if test="description != null">
-                , description = #{description}
+            <if test="sex != null">
+                , sex = #{sex}
             </if>
-            <if test="email != null">
-                , email = #{email}
-            </if>
-            <if test="updateTime != null">
-                , update_time = #{updateTime}
+            <if test="gmtModified != null">
+                , gmt_modified = #{gmtModified}
             </if>
         </trim>
-        where id = #{id}
-    </update>
-
-    <!-- 修改用户名-->
-    <update id="updateUsername" parameterType="com.youye.model.UserInfo">
-        update admin_user set username = #{username} where id=#{id}
+        where id = #{userId}
     </update>
 
     <update id="updatePassword">
@@ -180,10 +133,96 @@
         update admin_user set email = #{email} where id = #{userId}
     </update>
 
-    <select id="findAllUsers" resultType="com.youye.model.UserInfo">
-        SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total
-        FROM admin_user
-        LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id
+    <update id="updateUserLoginState">
+        update admin_user set is_login = #{loginState}, gmt_login = #{gmtLogin} where id = #{userId}
+    </update>
+
+    <select id="findUserById" resultType="com.youye.model.user.UserDO">
+        select
+        id as userId,
+        nick_name as nickname,
+        is_login as logged,
+        age,
+        height,
+        sex,
+        state,
+        gmt_login as gmtLogin,
+        gmt_create as gmtCreate,
+        gmt_modified as gmtModified
+        from admin_user where id = #{userId}
+    </select>
+    
+    <select id="findUserInfoByIdentifier" resultType="com.youye.model.user.UserInfoDTO">
+        SELECT
+        admin_user.id as userId,
+        admin_user.nick_name as nickname,
+        admin_user.sex,
+        admin_user.age,
+        admin_user.state,
+        admin_user.is_login as logged,
+        admin_user_profile.avatar,
+        admin_user_profile.address,
+        admin_user_profile.mobile,
+        admin_user_profile.email,
+        admin_user_profile.description,
+        admin_user_profile.city,
+        admin_user_profile.constellation,
+        admin_user_profile.career,
+        admin_anchor.charge,
+        admin_anchor.talk_total as talkTotal
+        FROM admin_user_auth
+        JOIN admin_user on admin_user_auth.user_id = admin_user.id
+        LEFT JOIN admin_user_profile on admin_user_auth.user_id = admin_user_profile.user_id
+        LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
+        where admin_user_auth.identifier = #{identifier}
     </select>
 
+    <select id="listUserInfo" resultType="com.youye.model.user.UserInfoDTO">
+        SELECT
+        admin_user.id as userId,
+        admin_user.nick_name as nickname,
+        admin_user.sex,
+        admin_user.age,
+        admin_user.state,
+        admin_user.is_login as logged,
+        admin_user_profile.avatar,
+        admin_user_profile.address,
+        admin_user_profile.mobile,
+        admin_user_profile.email,
+        admin_user_profile.description,
+        admin_user_profile.city,
+        admin_user_profile.constellation,
+        admin_user_profile.career,
+        admin_anchor.charge,
+        admin_anchor.talk_total as talkTotal
+        FROM admin_user_auth
+        JOIN admin_user on admin_user_auth.user_id = admin_user.id
+        LEFT JOIN admin_user_profile on admin_user_auth.user_id = admin_user_profile.user_id
+        LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
+    </select>
+
+    <select id="findUserDetailById" resultType="com.youye.model.user.UserDetailDTO">
+        SELECT
+        admin_user.id as userId,
+        admin_user.nick_name as nickname,
+        admin_user.sex,
+        admin_user.age,
+        admin_user.state,
+        admin_user.is_login as logged,
+        admin_user_profile.avatar,
+        admin_user_profile.address,
+        admin_user_profile.mobile,
+        admin_user_profile.email,
+        admin_user_profile.description,
+        admin_user_profile.city,
+        admin_user_profile.constellation,
+        admin_user_profile.career,
+        admin_anchor.charge,
+        admin_anchor.talk_total as talkTotal
+        FROM admin_user_auth
+        JOIN admin_user on admin_user_auth.user_id = admin_user.id
+        LEFT JOIN admin_user_profile on admin_user_auth.user_id = admin_user_profile.user_id
+        LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
+        where admin_user_auth.user_id = #{userId}
+    </select>
 </mapper>

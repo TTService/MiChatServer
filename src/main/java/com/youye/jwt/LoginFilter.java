@@ -1,11 +1,14 @@
 package com.youye.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.CharStreams;
+import com.google.gson.Gson;
 import com.youye.jwt.token.TokenManager;
 import com.youye.jwt.token.TokenModel;
+import com.youye.model.user.LoginVO;
 import com.youye.util.ErrCode;
 import com.youye.util.JSONResult;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,34 +48,39 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)  throws AuthenticationException {
         // JSON反序列化成 AccountCredentials
-        /*String content = CharStreams.toString(new InputStreamReader(request.getInputStream(), "utf-8"));
-        System.out.println(content);*/
-
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-
-        AccountCredential cred;
-        try {
-            cred = new ObjectMapper().readValue(request.getInputStream(), AccountCredential.class);
+       /* try {
+            String content = CharStreams.toString(new InputStreamReader(request.getInputStream(), "utf-8"));
+            System.out.println(content);;
         } catch (Exception e) {
-            cred = new AccountCredential();
-            cred.setUsername(username);
-            cred.setPassword(password);
+            e.printStackTrace();
+        }*/
+
+        /*String username = request.getParameter("identifier");
+        String password = request.getParameter("credential");*/
+
+        LoginVO loginVO;
+        try {
+            String content = CharStreams.toString(new InputStreamReader(request.getInputStream(), "utf-8"));
+            Gson gson = new Gson();
+            loginVO = gson.fromJson(content, LoginVO.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            loginVO = new LoginVO();
         }
 
         // 返回一个验证令牌
         return getAuthenticationManager()
-            .authenticate(new UsernamePasswordAuthenticationToken(cred.getUsername(), cred.getPassword()));
+            .authenticate(new UsernamePasswordAuthenticationToken(loginVO.getIdentifier(), loginVO.getCredential()));
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth)
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication auth)
         throws IOException, ServletException {
         //TokenAuthenticationService.addAuthentication(res, auth.getName());
         TokenModel tokenModel = tokenManager.createToken(auth.getName());
-        req.setAttribute("username", tokenModel.getUsername());
-        req.setAttribute("token", tokenModel.getToken());
-        chain.doFilter(req, res);
+        request.setAttribute("identifier", tokenModel.getIdentifier());
+        request.setAttribute("token", tokenModel.getToken());
+        chain.doFilter(request, response);
     }
 
     @Override

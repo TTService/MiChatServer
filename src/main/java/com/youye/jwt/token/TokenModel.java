@@ -11,7 +11,7 @@ public class TokenModel {
     private long userId;
 
     //用户名
-    private String username;
+    private String identifier;
 
     //随机生成的uuid
     private String token;
@@ -21,8 +21,8 @@ public class TokenModel {
         this.token = token;
     }
 
-    public TokenModel(String username, String token) {
-        this.username = username;
+    public TokenModel(String identifier, String token) {
+        this.identifier = identifier;
         this.token = token;
     }
 
@@ -34,12 +34,12 @@ public class TokenModel {
         this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
 
     public String getToken() {

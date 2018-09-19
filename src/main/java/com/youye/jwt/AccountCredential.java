@@ -19,6 +19,7 @@ public class AccountCredential {
 
     private String username;
     private String password;
+    private String identifyType;
 
     public String getUsername() {
         return username;
@@ -34,5 +35,13 @@ public class AccountCredential {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getIdentifyType() {
+        return identifyType;
+    }
+
+    public void setIdentifyType(String identifyType) {
+        this.identifyType = identifyType;
     }
 }

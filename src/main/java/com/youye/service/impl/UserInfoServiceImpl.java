@@ -1,15 +1,25 @@
 package com.youye.service.impl;
 
+import com.youye.constant.IdentifyType;
+import com.youye.mapper.UserAuthMapper;
 import com.youye.mapper.UserMapper;
-import com.youye.model.UserInfo;
+import com.youye.mapper.UserProfileMapper;
+import com.youye.model.user.RegisterVO;
+import com.youye.model.user.UserAuthDO;
+import com.youye.model.user.UserDO;
+import com.youye.model.user.UserDTO;
+import com.youye.model.user.UserDetailDTO;
+import com.youye.model.user.UserInfoDTO;
+import com.youye.model.user.UserModifyVO;
+import com.youye.model.user.UserProfileDO;
 import com.youye.service.UserInfoService;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * **********************************************
@@ -28,22 +38,60 @@ import org.springframework.stereotype.Service;
  */
 @Service(value = "userInfoService")
 public class UserInfoServiceImpl implements UserInfoService {
+    private Logger mLogger = LoggerFactory.getLogger(UserInfoServiceImpl.class);
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
-
-    @Autowired
     private UserMapper userMapper;
+    private UserAuthMapper userAuthMapper;
+    private UserProfileMapper userProfileMapper;
 
-    @Override
-    public void addUser(UserInfo userInfo) {
-        try {
-            userMapper.addUser(userInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Autowired
+    public UserInfoServiceImpl(UserMapper userMapper, UserAuthMapper userAuthMapper, UserProfileMapper userProfileMapper) {
+        this.userMapper = userMapper;
+        this.userAuthMapper = userAuthMapper;
+        this.userProfileMapper = userProfileMapper;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public boolean createUser(RegisterVO registerVO) {
+
+        UserDO userDO = new UserDO();
+        userDO.setNickname(registerVO.getNickname());
+        userDO.setLogged(0);
+        userDO.setState(0);
+        Date date = new Date();
+        userDO.setGmtCreate(date);
+        userDO.setGmtModified(date);
+        userMapper.createUser(userDO);
+
+        long userId = userDO.getUserId();
+        if (userId <= 0)
+            throw new RuntimeException("add user basic info failed.");
+
+        UserAuthDO userAuthDO = new UserAuthDO();
+        userAuthDO.setUserId(userId);
+        userAuthDO.setIdentifyType(registerVO.getIdentifyType());
+        userAuthDO.setIdentifier(registerVO.getIdentify());
+        userAuthDO.setCredential(registerVO.getCredential());
+        userAuthDO.setCreateDate(date);
+        userAuthDO.setModifyDate(date);
+        //TODO insert user auth into database.
+        userAuthMapper.addUserAuth(userAuthDO);
+
+        //TODO create user profile and insert into database.
+        UserProfileDO userProfileDO = new UserProfileDO();
+        userProfileDO.setUserId(userId);
+        if (IdentifyType.MOBILE.equalsIgnoreCase(registerVO.getIdentifyType())) {
+            userProfileDO.setMobile(registerVO.getIdentify());
+        }
+        userProfileDO.setGmtCreate(date);
+        userProfileDO.setGmtModified(date);
+        userProfileMapper.addUserProfile(userProfileDO);
+
+        return true;
+    }
+
+    //TODO
     @Override
     public boolean deleteUserByIdOrUsername(Integer userId, String username) {
         try {
@@ -55,25 +103,23 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public boolean updateUserBasicInfo(UserInfo userInfo) {
+    public boolean updateUserBasicInfo(UserModifyVO userInfo) {
         try {
-            userMapper.updateUser(userInfo);
+            UserDO userDO = new UserDO();
+            userDO.setUserId(userInfo.getUserId());
+            userDO.setNickname(userInfo.getNickname());
+            userDO.setAge(userInfo.getAge());
+            userDO.setHeight(userInfo.getHeight());
+            userDO.setSex(userInfo.getSex());
+            userDO.setGmtModified(new Date());
+            userMapper.updateUserBasicInfo(userDO);
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    @Override
-    public boolean updateFormalUsername(UserInfo userInfo) {
-        try {
-            userMapper.updateUsername(userInfo);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
+    //TODO
     @Override
     public boolean updatePassword(String password, Long userId) {
         try {
@@ -84,6 +130,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
     }
 
+    //TODO
     @Override
     public boolean updateMobile(String mobile, Long userId) {
         try {
@@ -94,6 +141,7 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
     }
 
+    //TODO
     @Override
     public boolean updateEmail(String email, Long userId) {
         try {
@@ -105,59 +153,44 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserInfo findOneById(Integer userId) {
-        return userMapper.findOneById(userId);
+    public boolean updateUserLoginState(Long userId, Integer loginState) {
+        try {
+            Date date = new Date();
+            userMapper.updateUserLoginState(userId, loginState, date);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
-    public UserInfo findOneByUsername(String username) {
-        return userMapper.findOneByUsername(username);
+    public UserDTO findUserById(Long userId) {
+        UserDO userDO = userMapper.findUserById(userId);
+        return (UserDTO) userDO;
     }
 
     @Override
-    public UserInfo findOneByMobile(String mobile) {
-        return userMapper.findOneByMobile(mobile);
+    public List<UserInfoDTO> findAllAnchor() {
+        return userMapper.listUserInfo();
     }
 
     @Override
-    public List<UserInfo> findAllUser() {
-        //return userMapper.findAllUsers();
-        return null;
+    public UserAuthDO getAuthByIdentifier(String mobile) {
+        return userAuthMapper.getByIdentifier(mobile);
     }
 
     @Override
-    public List<UserInfo> findAllAnchor() {
-        return userMapper.findAllUsers();
+    public UserInfoDTO findUserInfoByIdentifier(String identifier) {
+        return userMapper.findUserInfoByIdentifier(identifier);
     }
 
     @Override
-    public List<UserInfo> findAllAdmin() {
-        return null;
-    }
-
-    @Override
-    public void create(String name, String nickName, Integer sex, Integer age, Integer role, Integer state, String img, String desc) {
-        Calendar calendar = Calendar.getInstance();
-        Date date = calendar.getTime();
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String dateStr = simpleDateFormat.format(date);
-        jdbcTemplate.update("insert into user (username, nick_name, sex, age, role, state, img, description, insert_time, update_time) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            name, nickName, sex, age, role, state, img, desc, dateStr, dateStr);
-    }
-
-    @Override
-    public void deleteById(Integer userId) {
-        jdbcTemplate.update("delete from user where id = ?", userId);
-    }
-
-    @Override
-    public Integer getAllUsers() {
-        return jdbcTemplate.queryForObject("select count(1) from user", Integer.class);
-    }
-
-    @Override
-    public void deleteAllUsers() {
-        jdbcTemplate.update("delete from user");
+    public UserDetailDTO findUserDetailById(Long userId) {
+        try {
+            return userMapper.findUserDetailById(userId);
+        } catch (Exception e) {
+            mLogger.error(e.getMessage());
+            return null;
+        }
     }
 }

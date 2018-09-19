@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.youye.mapper.UserProfileMapper">
+
+    <insert id="addUserProfile" useGeneratedKeys="true" keyProperty="id" parameterType="com.youye.model.user.UserProfileDO">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into admin_user_profile
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="userId != null">
+                , user_id
+            </if>
+            <if test="avatar != null">
+                , avatar
+            </if>
+            <if test="address != null">
+                , address
+            </if>
+            <if test="description != null">
+                , description
+            </if>
+            <if test="mobile != null">
+                , mobile
+            </if>
+            <if test="email != null">
+                , email
+            </if>
+            <if test="city != null">
+                , city
+            </if>
+            <if test="constellation != null">
+                , constellation
+            </if>
+            <if test="career != null">
+                , career
+            </if>
+            <if test="gmtCreate != null">
+                , gmt_create
+            </if>
+            <if test="gmtModified != null">
+                , gmt_modified
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="userId != null">
+                , #{userId}
+            </if>
+            <if test="avatar != null">
+                , #{avatar}
+            </if>
+            <if test="address != null">
+                , #{address}
+            </if>
+            <if test="description != null">
+                , #{description}
+            </if>
+            <if test="mobile != null">
+                , #{mobile}
+            </if>
+            <if test="email != null">
+                , #{email}
+            </if>
+            <if test="city != null">
+                , #{city}
+            </if>
+            <if test="constellation != null">
+                , #{constellation}
+            </if>
+            <if test="career != null">
+                , #{career}
+            </if>
+            <if test="gmtCreate != null">
+                , #{gmtCreate}
+            </if>
+            <if test="gmtModified != null">
+                , #{gmtModified}
+            </if>
+        </trim>
+        )
+    </insert>
+</mapper>

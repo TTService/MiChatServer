@@ -1853,6 +1853,22 @@ public class StringUtil {
 
     /**
      * <p>
+     * Checks if the String contains only letters, digits or specified symbol.
+     * like !@#$%^&*()_+{}|<>?,.
+     * </p>
+     *
+     * @param str the String to check
+     * @return <code>true</code> if only contains letters, digits or specified symbol.
+     */
+    public static boolean isAccount(String str) {
+        String regEx = "^[0-9a-zA-Z!@#$%^&*()_+{}|<>?,.]+$";
+        Pattern pattern = Pattern.compile(regEx);
+        Matcher matcher = pattern.matcher(str);
+        return matcher.matches();
+    }
+
+    /**
+     * <p>
      * Checks if the String contains only unicode letters, digits or space (<code>' '</code>).
      * </p>
      * <p/>

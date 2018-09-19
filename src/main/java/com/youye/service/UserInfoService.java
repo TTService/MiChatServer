@@ -1,6 +1,12 @@
 package com.youye.service;
 
-import com.youye.model.UserInfo;
+import com.youye.model.user.RegisterVO;
+import com.youye.model.user.UserAuthDO;
+import com.youye.model.user.UserDTO;
+import com.youye.model.user.UserDetailDTO;
+import com.youye.model.user.UserInfoDTO;
+import com.youye.model.user.UserModifyVO;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -20,7 +26,7 @@ import java.util.List;
  */
 public interface UserInfoService {
 
-    void addUser(UserInfo userInfo);
+    boolean createUser(RegisterVO registerVO);
 
     /**
      * 根据用户ID或用户名删除用户
@@ -31,12 +37,7 @@ public interface UserInfoService {
      * 修改用户基本信息,不包括密码，手机号码, 用户名, 角色类型, 使用状态, 图像
      *
      */
-    boolean updateUserBasicInfo(UserInfo userInfo);
-
-    /**
-     * 修改用户名
-     */
-    boolean updateFormalUsername(UserInfo userInfo);
+    boolean updateUserBasicInfo(UserModifyVO userInfo);
 
     boolean updatePassword(String password, Long userId);
 
@@ -44,49 +45,32 @@ public interface UserInfoService {
 
     boolean updateEmail(String email, Long userId);
 
-    UserInfo findOneById(Integer userId);
-
-    UserInfo findOneByUsername(String username);
-
     /**
-     * 通过用户的手机号码来查找用户，理论上一个手机号码在系统只允许指定一个用户。
-     * @param mobile 用户的手机号码，或者用户名
+     * 更新用户的登录状态
      */
-    UserInfo findOneByMobile(String mobile);
+    boolean updateUserLoginState(Long userId, Integer loginState);
 
-    /**
-     * 查找所有用户
-     */
-    List<UserInfo> findAllUser();
+    UserDTO findUserById(Long userId);
 
     /**
      * 查找所有主播
      */
-    List<UserInfo> findAllAnchor();
+    List<UserInfoDTO> findAllAnchor();
 
     /**
-     * 查找所有管理员用户
+     * 通过用户的手机号码来查找用户，理论上一个手机号码在系统只允许指定一个用户。
+     * @param identifier 用户的手机号码，或者用户名
      */
-    List<UserInfo> findAllAdmin();
+    UserAuthDO getAuthByIdentifier(String identifier);
 
     /**
-     * 创建用户
+     * 查找用户简要信息
+     * @param identifier 用户的账号，mobile / username / email
      */
-    void create(String name, String nickName, Integer sex, Integer age, Integer role, Integer state,
-        String img, String desc);
+    UserInfoDTO findUserInfoByIdentifier(String identifier);
 
     /**
-     * 根据用户ID删除用户
+     * 查找用户的详细信息
      */
-    void deleteById(Integer userId);
-
-    /**
-     * 获取所有用户
-     */
-    Integer getAllUsers();
-
-    /**
-     * 删除所有用户
-     */
-    void deleteAllUsers();
+    UserDetailDTO findUserDetailById(Long userId);
 }

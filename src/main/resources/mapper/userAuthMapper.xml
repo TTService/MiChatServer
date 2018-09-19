@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.youye.mapper.UserAuthMapper">
+
+    <insert id="addUserAuth" useGeneratedKeys="true" keyProperty="id" parameterType="com.youye.model.user.UserAuthDO">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into admin_user_profile
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="userId != null">
+                , user_id
+            </if>
+            <if test="identifyType != null">
+                , identify_type
+            </if>
+            <if test="identifier != null">
+                , identifier
+            </if>
+            <if test="credential != null">
+                , credential
+            </if>
+            <if test="lastLogin != null">
+                , gmt_last_login
+            </if>
+            <if test="createDate != null">
+                , gmt_create
+            </if>
+            <if test="modifyDate != null">
+                , gmt_modified
+            </if>
+        </trim>
+        )
+        values
+        (
+        <trim prefix="" prefixOverrides=",">
+            <if test="userId != null">
+                , #{userId}
+            </if>
+            <if test="identifyType != null">
+                , #{identifyType}
+            </if>
+            <if test="identifier != null">
+                , #{useridentifierId}
+            </if>
+            <if test="credential != null">
+                , #{credential}
+            </if>
+            <if test="lastLogin != null">
+                , #{lastLogin}
+            </if>
+            <if test="createDate != null">
+                , #{createDate}
+            </if>
+            <if test="modifyDate != null">
+                , #{modifyDate}
+            </if>
+        </trim>
+        )
+    </insert>
+
+    <select id="getByIdentifier" resultType="com.youye.model.user.UserAuthDO">
+        SELECT
+        user_id as userId,
+        identify_type as identifyType,
+        identifier,
+        credential,
+        gmt_last_login as lastLogin,
+        gmt_modified as modifyDate,
+        gmt_create as createDate
+        FROM admin_user_auth
+        WHERE identifier = #{identifier}
+    </select>
+</mapper>

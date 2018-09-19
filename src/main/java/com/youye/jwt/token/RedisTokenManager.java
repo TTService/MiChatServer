@@ -41,20 +41,20 @@ public class RedisTokenManager implements TokenManager {
         return model;
     }
 
-    public TokenModel createToken(String username) {
+    public TokenModel createToken(String identifier) {
         // 创建随机的UUID
         String uuid = UUID.randomUUID().toString().replace("-", "");
         // uuid 通过分隔符与username 进行拼接
-        String tempToken = username + SPACER + uuid;
+        String tempToken = identifier + SPACER + uuid;
 
         // 对tempToken进行AES加密生成传输token数据
         String token = AESUtil.aesEncode(tempToken);
         if (token == null)
             token = tempToken;
 
-        TokenModel model = new TokenModel(username, token);
+        TokenModel model = new TokenModel(identifier, token);
 
-        String key = SALT + username;
+        String key = SALT + identifier;
         //原始token存储到redis并设置过期时间
         redis.boundValueOps(key).set(tempToken, EXPIRATION_TIME, TimeUnit.HOURS);
         return model;
@@ -89,7 +89,7 @@ public class RedisTokenManager implements TokenManager {
         }
 
         try {
-            String key = SALT + model.getUsername();
+            String key = SALT + model.getIdentifier();
             //String token = redis.boundValueOps(model.getUserId()).get();
             //String token = (String) redis.boundValueOps(model.getUserId()).get();
             String token = (String) redis.boundValueOps(key).get();

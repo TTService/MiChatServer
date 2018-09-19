@@ -1,9 +1,9 @@
-package com.youye.common;
+package com.youye.model.user;
 
 /**
  * **********************************************
  * <p/>
- * Date: 2018-06-01 09:13
+ * Date: 2018-09-14 10:17
  * <p/>
  * Author: SinPingWu
  * <p/>
@@ -15,10 +15,6 @@ package com.youye.common;
  * <p/>
  * **********************************************
  */
-public class Global {
+public class UserDTO extends UserDO{
 
-    public static class Param {
-        public static String USERNAME = "username";
-        public static String IDENTIFIER = "identifier";
-    }
 }

@@ -49,8 +49,8 @@ public class AuthenticationFilter extends GenericFilterBean {
         TokenModel tokenModel = tokenManager.getToken(authentication);
         boolean isChecked = tokenManager.checkToken(tokenModel);
         if (isChecked) {
-            request.setAttribute(Param.USERNAME, tokenModel.getUsername());
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(tokenModel.getUsername(), null, null);
+            request.setAttribute(Param.IDENTIFIER, tokenModel.getIdentifier());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(tokenModel.getIdentifier(), null, null);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 

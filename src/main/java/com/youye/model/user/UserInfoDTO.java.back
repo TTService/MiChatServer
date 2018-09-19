@@ -1,4 +1,4 @@
-package com.youye.model;
+package com.youye.model.user;
 
 import java.util.Date;
 
@@ -11,38 +11,35 @@ import java.util.Date;
  * <p/>
  * Email: wuxinping@ubinavi.com.cn
  * <p/>
- * brief:
+ * brief: 用户数据传输对象。泛指用于展示层与服务层之间的数据传输对象。
  * <p/>
  * history:
  * <p/>
  * **********************************************
  */
-public class UserInfo {
+public class UserInfoDTO {
 
     private Long id;
-    private String username;
-    private String password;
     private String nickName;
     private Integer sex;
     private Integer age;
-    private Integer role;
     private Integer state;
+    private Integer logged;
 
-    /**
-     * 用户名是否已修改
-     */
-    private Integer usernameModified;
-    private String img;
+    private String avator;
     private String address;
     private String mobile;
     private String email;
     private String description;
+    private String city;
+    private String constellation;
+    private String career;
 
     private Integer charge;
     private Long talkTotal;
 
-    private Date insertTime;
-    private Date updateTime;
+    private Date gmtCreate;
+    private Date gmtModified;
 
 
     public Long getId() {
@@ -51,22 +48,6 @@ public class UserInfo {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getNickName() {
@@ -93,14 +74,6 @@ public class UserInfo {
         this.age = age;
     }
 
-    public Integer getRole() {
-        return role;
-    }
-
-    public void setRole(Integer role) {
-        this.role = role;
-    }
-
     public Integer getState() {
         return state;
     }
@@ -109,20 +82,20 @@ public class UserInfo {
         this.state = state;
     }
 
-    public Integer getUsernameModified() {
-        return usernameModified;
+    public Integer getLogged() {
+        return logged;
     }
 
-    public void setUsernameModified(Integer usernameModified) {
-        this.usernameModified = usernameModified;
+    public void setLogged(Integer logged) {
+        this.logged = logged;
     }
 
-    public String getImg() {
-        return img;
+    public String getAvator() {
+        return avator;
     }
 
-    public void setImg(String img) {
-        this.img = img;
+    public void setAvator(String avator) {
+        this.avator = avator;
     }
 
     public String getAddress() {
@@ -157,6 +130,30 @@ public class UserInfo {
         this.description = description;
     }
 
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getConstellation() {
+        return constellation;
+    }
+
+    public void setConstellation(String constellation) {
+        this.constellation = constellation;
+    }
+
+    public String getCareer() {
+        return career;
+    }
+
+    public void setCareer(String career) {
+        this.career = career;
+    }
+
     public Integer getCharge() {
         return charge;
     }
@@ -173,19 +170,19 @@ public class UserInfo {
         this.talkTotal = talkTotal;
     }
 
-    public Date getInsertTime() {
-        return insertTime;
+    public Date getGmtCreate() {
+        return gmtCreate;
     }
 
-    public void setInsertTime(Date insertTime) {
-        this.insertTime = insertTime;
+    public void setGmtCreate(Date gmtCreate) {
+        this.gmtCreate = gmtCreate;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
+    public Date getGmtModified() {
+        return gmtModified;
     }
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setGmtModified(Date gmtModified) {
+        this.gmtModified = gmtModified;
     }
 }

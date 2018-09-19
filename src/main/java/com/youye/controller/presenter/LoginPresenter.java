@@ -1,9 +1,15 @@
 package com.youye.controller.presenter;
 
-import com.youye.model.UserInfo;
 import com.youye.model.result.ResultInfo;
+import com.youye.model.user.RegisterVO;
+import com.youye.model.user.UserAuthDO;
+import com.youye.service.UserInfoService;
 import com.youye.util.ErrCode;
 import com.youye.util.StringUtil;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * **********************************************
@@ -20,23 +26,26 @@ import com.youye.util.StringUtil;
  * <p/>
  * **********************************************
  */
+@Component
 public class LoginPresenter {
 
     public interface ILoginPresenter {
-
     }
 
     private ILoginPresenter mCallback;
+    private UserInfoService userInfoService;
 
-    public LoginPresenter(ILoginPresenter callback) {
+    @Autowired
+    public LoginPresenter(ILoginPresenter callback, UserInfoService userInfoService) {
         this.mCallback = callback;
+        this.userInfoService = userInfoService;
     }
 
-    public ResultInfo isValidForAddUser(UserInfo user) {
-        if (user == null)
+    public ResultInfo isValidForAddUser(RegisterVO registerVO) {
+        if (registerVO == null)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "接口调用错误，请包装用户信息");
 
-        String mobile = user.getMobile();
+        String mobile = registerVO.getMobile();
         if (StringUtil.isEmpty(mobile)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "请填写校验后返回的数字作为手机号码");
         }
@@ -45,28 +54,28 @@ public class LoginPresenter {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "手机号码格式错误，请填写校验后返回的数字作为手机号码");
         }
 
-        user.setMobile(mobile);
-        user.setUsername(mobile);
+        registerVO.setMobile(mobile);
 
-        /*String username = user.getUsername();
-        if (StringUtil.isEmpty(username)) {
-            return new ResultInfo(ErrCode.BAD_REQUEST, "", "请填写用户名");
-        }*/
-        String password = user.getPassword();
-        if (StringUtil.isEmpty(password)) {
+        ResultInfo resultInfo = isValidFormalIdentifier(registerVO.getIdentify());
+        if (resultInfo != null) {
+            return resultInfo;
+        }
+
+        String credential = registerVO.getCredential();
+        if (StringUtil.isEmpty(credential)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "请填写密码");
         }
 
-        if (!isValidPassword(password)) {
+        if (!isValidPassword(credential)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "密码长度为6~18位");
         }
 
-        String nickName = user.getNickName();
+        String nickname = registerVO.getNickname();
         /*if (StringUtil.isEmpty(nickName)) {
             return new ResultInfo(ErrCode.BAD_REQUEST, mobile, "请填写昵称");
         }*/
-        if (nickName == null)
-            user.setNickName(mobile);
+        if (nickname == null)
+            registerVO.setNickname(mobile);
 
         return null;
     }
@@ -78,5 +87,35 @@ public class LoginPresenter {
         }
 
         return password.length() >= 6 && password.length() <= 18;
+    }
+
+    /**
+     * 判断是否为正式的账号，对应admin_user_auth中的identifier
+     * 1、账号长度 >= 2
+     * 2、账号不允许存在汉字、特殊字符。
+     * 3、账号在库中存在唯一性。不允许存在相同的账号。
+     */
+    public ResultInfo isValidFormalIdentifier(String identifier) {
+        if (StringUtil.isEmpty(identifier)) {
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "请填写账号");
+        }
+
+        if (identifier.length() < 2 || identifier.length() > 18)
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "账号2~18字节");
+
+        if (!StringUtil.isAccount(identifier))
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "账号包含非法字符");
+
+        UserAuthDO userAuthDO = userInfoService.getAuthByIdentifier(identifier);
+
+        if (userAuthDO != null && userAuthDO.getIdentifier().equals(identifier)) {
+            List<String> temp = new ArrayList<>();
+            temp.add(identifier+ "11");
+            temp.add(identifier+ "1122");
+            temp.add(identifier+ "1212");
+            return new ResultInfo(ErrCode.BAD_REQUEST, temp, "该账号已存在");
+        }
+
+        return null;
     }
 }

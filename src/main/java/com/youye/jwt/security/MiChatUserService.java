@@ -1,7 +1,7 @@
 package com.youye.jwt.security;
 
-import com.youye.mapper.UserMapper;
-import com.youye.model.UserInfo;
+import com.youye.mapper.UserAuthMapper;
+import com.youye.model.user.UserAuthDO;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +28,16 @@ import org.springframework.stereotype.Service;
 public class MiChatUserService implements UserDetailsService {
 
     @Autowired
-    private UserMapper userMapper;
+    private UserAuthMapper userAuthMapper;
 
     @Override
     public UserDetails loadUserByUsername(String s) {
-        UserInfo user = userMapper.findOneByUsername(s);
-        if (user == null)
+        UserAuthDO userAuth = userAuthMapper.getByIdentifier(s);
+        if (userAuth == null)
             return null;
 
         List<GrantedAuthorityImpl> authorities = new ArrayList<>();
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(userAuth.getIdentifier(), userAuth.getCredential(), authorities);
     }
 }

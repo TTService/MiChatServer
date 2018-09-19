@@ -15,7 +15,7 @@ package com.youye.constant;
  * <p/>
  * **********************************************
  */
-public enum  ResultConstant {
+public enum ResultConstant {
 
     /**
      * 失败

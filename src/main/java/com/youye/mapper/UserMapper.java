@@ -1,10 +1,12 @@
 package com.youye.mapper;
 
-import com.youye.model.UserInfo;
+import com.youye.model.user.UserDO;
+import com.youye.model.user.UserDetailDTO;
+import com.youye.model.user.UserInfoDTO;
+import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 /**
  * **********************************************
@@ -24,7 +26,7 @@ import org.apache.ibatis.annotations.Select;
 @Mapper
 public interface UserMapper {
 
-    void addUser(UserInfo user);
+    void createUser(UserDO userDO);
 
     /**
      * 根据用户ID或用户名删除用户
@@ -35,12 +37,7 @@ public interface UserMapper {
     /**
      * 修改用户信息,不包括密码，手机号码
      */
-    void updateUser(UserInfo userInfo);
-
-    /**
-     * 修改用户名
-     */
-    void updateUsername(UserInfo userInfo);
+    void updateUserBasicInfo(UserDO userInfo);
 
     void updatePassword(@Param("password") String password, @Param("userId") Long userId);
 
@@ -48,24 +45,18 @@ public interface UserMapper {
 
     void updateEmail(@Param("email") String email, @Param("userId") Long userId);
 
-    @Select(
-        "SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id"
-            +
-            " where admin_user.id = #{userId}")
-    UserInfo findOneById(@Param("userId") Integer userId);
+    /**
+     * 更新用户的登录状态
+     * @param userId 所更新的用户ID
+     * @param loginState 登录状态 1 已登录， 0未登录
+     */
+    void updateUserLoginState(@Param("userId") long userId, @Param("loginState") Integer loginState, @Param("gmtLogin") Date gmtLogin);
 
-    @Select(
-        "SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id"
-            +
-            " where admin_user.username = #{username}")
-    UserInfo findOneByUsername(@Param("username") String username);
+    UserDO findUserById(@Param("userId") Long userId);
 
-    @Select(
-        "SELECT admin_user.*, admin_anchor.charge, admin_anchor.talk_total FROM admin_user LEFT JOIN admin_anchor on admin_user.id=admin_anchor.user_id"
-            +
-            " where admin_user.username = #{mobile} or admin_user.mobile = #{mobile}")
-    UserInfo findOneByMobile(@Param("mobile") String mobile);
+    UserInfoDTO findUserInfoByIdentifier(@Param("identifier") String identifier);
 
-    List<UserInfo> findAllUsers();
+    List<UserInfoDTO> listUserInfo();
 
+    UserDetailDTO findUserDetailById(@Param("userId") Long userId);
 }
