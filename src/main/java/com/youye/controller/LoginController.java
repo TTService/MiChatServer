@@ -79,19 +79,6 @@ public class LoginController implements ILoginPresenter {
         userInfoService.updateUserLoginState(user.getUserId(), user.getLogged());
         response.setHeader("token", token);
 
-        try {
-            File file = new File("/Users/SinPingWu/TestClass.class");
-            FileInputStream fileInputStream = new FileInputStream(file);
-            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-            int byteLength = bufferedInputStream.available();
-            byte[] clazzBytes = new byte[byteLength];
-            bufferedInputStream.read(clazzBytes);
-
-            String result = JavaClassExecuter.execute(clazzBytes);
-            System.out.println(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         return new ResultInfo(ErrCode.OK, user, "login success");
     }
 
