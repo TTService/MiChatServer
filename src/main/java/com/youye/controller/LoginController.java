@@ -9,10 +9,14 @@ import com.youye.model.user.UserAuthDO;
 import com.youye.model.user.UserInfoDTO;
 import com.youye.model.result.ResultInfo;
 import com.youye.redis.RedisUtil;
+import com.youye.remote.JavaClassExecuter;
 import com.youye.service.UserInfoService;
 import com.youye.util.ErrCode;
 import com.youye.util.StringUtil;
 import com.youye.util.VerificationCodeUtil;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +78,20 @@ public class LoginController implements ILoginPresenter {
         user.setLogged(1);
         userInfoService.updateUserLoginState(user.getUserId(), user.getLogged());
         response.setHeader("token", token);
+
+        try {
+            File file = new File("/Users/SinPingWu/TestClass.class");
+            FileInputStream fileInputStream = new FileInputStream(file);
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+            int byteLength = bufferedInputStream.available();
+            byte[] clazzBytes = new byte[byteLength];
+            bufferedInputStream.read(clazzBytes);
+
+            String result = JavaClassExecuter.execute(clazzBytes);
+            System.out.println(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return new ResultInfo(ErrCode.OK, user, "login success");
     }
 
