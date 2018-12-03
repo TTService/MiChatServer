@@ -8,6 +8,7 @@
     <artifactId>server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <!--<packaging>war</packaging>-->
 
     <name>MiChatServer</name>
     <description>Demo project for Spring Boot</description>
@@ -25,6 +26,8 @@
         <java.version>1.8</java.version>
         <swagger.version>2.2.2</swagger.version>
         <mysql.version>5.1.21</mysql.version>
+        <commons.io.version>2.5</commons.io.version>
+        <skipTests>true</skipTests>
     </properties>
 
     <dependencies>
@@ -118,6 +121,21 @@
             <groupId>com.github.qcloudsms</groupId>
             <artifactId>qcloudsms</artifactId>
             <version>1.0.2</version>
+        </dependency>
+
+        <!--阿里云OSS Start-->
+        <dependency>
+            <groupId>com.aliyun.oss</groupId>
+            <artifactId>aliyun-sdk-oss</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+        <!--阿里云OSS End-->
+
+        <!--io常用工具类 -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons.io.version}</version>
         </dependency>
 
         <!-- Start Swagger2 -->

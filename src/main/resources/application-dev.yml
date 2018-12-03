@@ -35,6 +35,13 @@ spring:
     restart:
       enabled: true
       exclude: WEB-INF/**
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 0
+      max-file-size: 1MB
+      max-request-size: 3MB
+      resolve-lazily: false
 mybatis:
   type-aliases-package: com.youye.mapper
   mapper-locations: classpath:mapper/*.xml
