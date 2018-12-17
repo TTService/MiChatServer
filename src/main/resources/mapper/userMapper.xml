@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.youye.mapper.UserMapper">
+<mapper namespace="com.ttsource.mapper.UserMapper">
 
-    <resultMap id="userInfo" type="com.youye.model.user.UserInfoDTO">
+    <resultMap id="userInfo" type="com.ttsource.model.user.UserInfoDTO">
         <id column="id" property="id"/>
         <result column="username" property="username"/>
         <result column="nick_name" property="nickName"/>
@@ -22,7 +22,7 @@
 
     <!-- 添加用户-->
     <insert id="createUser" useGeneratedKeys="true" keyProperty="userId"
-        parameterType="com.youye.model.user.UserDO">
+        parameterType="com.ttsource.model.user.UserDO">
         <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="userId">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -99,7 +99,7 @@
     </delete>
 
     <!-- 修改用户基本信息,不包括密码，手机号码, 邮箱-->
-    <update id="updateUserBasicInfo" parameterType="com.youye.model.user.UserDO">
+    <update id="updateUserBasicInfo" parameterType="com.ttsource.model.user.UserDO">
         update admin_user
         <trim prefix="set" prefixOverrides=",">
             <if test="nickname != null">
@@ -137,7 +137,7 @@
         update admin_user set is_login = #{loginState}, gmt_login = #{gmtLogin} where id = #{userId}
     </update>
 
-    <select id="findUserById" resultType="com.youye.model.user.UserDO">
+    <select id="findUserById" resultType="com.ttsource.model.user.UserDO">
         select
         id as userId,
         nick_name as nickname,
@@ -152,7 +152,7 @@
         from admin_user where id = #{userId}
     </select>
     
-    <select id="findUserInfoByIdentifier" resultType="com.youye.model.user.UserInfoDTO">
+    <select id="findUserInfoByIdentifier" resultType="com.ttsource.model.user.UserInfoDTO">
         SELECT
         admin_user.id as userId,
         admin_user.nick_name as nickname,
@@ -177,7 +177,7 @@
         where admin_user_auth.identifier = #{identifier}
     </select>
 
-    <select id="listUserInfo" resultType="com.youye.model.user.UserInfoDTO">
+    <select id="listUserInfo" resultType="com.ttsource.model.user.UserInfoDTO">
         SELECT
         admin_user.id as userId,
         admin_user.nick_name as nickname,
@@ -201,7 +201,7 @@
         LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
     </select>
 
-    <select id="findUserDetailById" resultType="com.youye.model.user.UserDetailDTO">
+    <select id="findUserDetailById" resultType="com.ttsource.model.user.UserDetailDTO">
         SELECT
         admin_user.id as userId,
         admin_user.nick_name as nickname,

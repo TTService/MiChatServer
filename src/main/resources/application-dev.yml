@@ -43,5 +43,5 @@ spring:
       max-request-size: 3MB
       resolve-lazily: false
 mybatis:
-  type-aliases-package: com.youye.mapper
+  type-aliases-package: com.ttsource.mapper
   mapper-locations: classpath:mapper/*.xml
