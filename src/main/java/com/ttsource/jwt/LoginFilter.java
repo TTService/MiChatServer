@@ -9,6 +9,7 @@ import com.ttsource.util.ErrCode;
 import com.ttsource.util.JSONResult;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Enumeration;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -85,9 +86,16 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+        String message = failed.getMessage();
         response.setContentType("application/json");
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.setStatus(0x1001);
         response.getOutputStream().println(JSONResult
-            .fillResultString(ErrCode.BAD_REQUEST, failed.getMessage(), ""));
+            .fillResultString(ErrCode.BAD_REQUEST, "", message == null ? "" : message));
+
+        try {
+            super.unsuccessfulAuthentication(request, response, failed);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        }
     }
 }

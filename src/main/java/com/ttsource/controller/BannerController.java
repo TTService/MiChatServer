@@ -30,11 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/banner")
 public class BannerController {
 
-    @Autowired
+    private BannerService bannerService;
     private BannerMapper bannerMapper;
 
     @Autowired
-    private BannerService bannerService;
+    public BannerController(BannerService bannerService, BannerMapper bannerMapper) {
+        this.bannerMapper = bannerMapper;
+        this.bannerService = bannerService;
+    }
 
     /**
      * 根据性别获取Banner信息

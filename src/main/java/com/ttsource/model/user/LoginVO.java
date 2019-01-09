@@ -20,6 +20,7 @@ public class LoginVO {
     private String identifierType;
     private String identifier;
     private String credential;
+    private String clientUUID;
 
     public LoginVO() {
         this.identifierType = "";
@@ -49,5 +50,13 @@ public class LoginVO {
 
     public void setCredential(String credential) {
         this.credential = credential;
+    }
+
+    public String getClientUUID() {
+        return clientUUID;
+    }
+
+    public void setClientUUID(String clientUUID) {
+        this.clientUUID = clientUUID;
     }
 }

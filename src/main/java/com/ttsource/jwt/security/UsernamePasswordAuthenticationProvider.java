@@ -1,5 +1,6 @@
 package com.ttsource.jwt.security;
 
+import com.ttsource.exception.UserNotFoundException;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -35,7 +36,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         UserDetails userDetails = userDetailService.loadUserByUsername(name);
         if (userDetails == null) {
-            throw new BadCredentialsException("用户不存在");
+            throw new UserNotFoundException("用户不存在");
         }
 
         if (!userDetails.getPassword().equals(password))
