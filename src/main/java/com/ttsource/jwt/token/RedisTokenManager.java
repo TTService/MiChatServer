@@ -109,4 +109,19 @@ public class RedisTokenManager implements TokenManager {
     public void deleteToken(long userId) {
         redis.delete(userId);
     }
+
+    @Override
+    public String generateToken(String identifier) {
+        // 创建随机的UUID
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        // uuid 通过分隔符与username 进行拼接
+        String tempToken = identifier + SPACER + uuid;
+
+        // 对tempToken进行AES加密生成传输token数据
+        String token = AESUtil.aesEncode(tempToken);
+        if (token == null)
+            token = tempToken;
+
+        return token;
+    }
 }
