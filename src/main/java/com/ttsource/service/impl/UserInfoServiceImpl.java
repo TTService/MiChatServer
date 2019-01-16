@@ -5,13 +5,11 @@ import com.ttsource.mapper.UserAuthMapper;
 import com.ttsource.mapper.UserMapper;
 import com.ttsource.mapper.UserProfileMapper;
 import com.ttsource.model.user.RegisterVO;
-import com.ttsource.model.user.UserAuthDO;
-import com.ttsource.model.user.UserDO;
-import com.ttsource.model.user.UserDTO;
-import com.ttsource.model.user.UserDetailDTO;
+import com.ttsource.entities.UserAuthDO;
+import com.ttsource.entities.UserDO;
 import com.ttsource.model.user.UserInfoDTO;
 import com.ttsource.model.user.UserModifyVO;
-import com.ttsource.model.user.UserProfileDO;
+import com.ttsource.entities.UserProfileDO;
 import com.ttsource.service.UserInfoService;
 import java.util.Date;
 import java.util.List;
@@ -164,9 +162,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserDTO findUserById(Long userId) {
-        UserDO userDO = userMapper.findUserById(userId);
-        return (UserDTO) userDO;
+    public UserDO findUserById(Long userId) {
+        return userMapper.findUserById(userId);
     }
 
     @Override
@@ -185,7 +182,7 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     @Override
-    public UserDetailDTO findUserDetailById(Long userId) {
+    public UserInfoDTO findUserDetailById(Long userId) {
         try {
             return userMapper.findUserDetailById(userId);
         } catch (Exception e) {

@@ -2,9 +2,9 @@ package com.ttsource.controller;
 
 import com.ttsource.controller.presenter.UserPresenter;
 import com.ttsource.controller.presenter.UserPresenter.IUserPresenter;
+import com.ttsource.entities.UserDO;
 import com.ttsource.jwt.annotation.User;
 import com.ttsource.model.result.ResultInfo;
-import com.ttsource.model.user.UserDTO;
 import com.ttsource.model.user.UserInfoDTO;
 import com.ttsource.model.user.UserModifyVO;
 import com.ttsource.service.UserInfoService;
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -88,12 +89,13 @@ public class UserController implements IUserPresenter {
      */
     @RequestMapping(value = "/update/basic")
     @Transactional
+    @PreAuthorize("hasRole('')")
     public ResultInfo updateUserInfo(@RequestBody UserModifyVO userInfo) {
         if (userInfo == null || userInfo.getUserId() <= 0)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "参数错误");
 
-        UserDTO userDTO = userInfoService.findUserById(userInfo.getUserId());
-        if (userDTO == null)
+        UserDO user = userInfoService.findUserById(userInfo.getUserId());
+        if (user == null)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "用户不存在");
 
         ResultInfo resultInfo = mPresenter.isValidUpdateUserBasicInfo(userInfo);
@@ -127,17 +129,17 @@ public class UserController implements IUserPresenter {
     @RequestMapping(value = "/find/detail")
     public ResultInfo findUserDetailById(@RequestBody Map<String, Object> param) {
         try {
-            Long userId = (Long) param.get("userId");
+            Integer userId = (Integer) param.get("userId");
             if (userId == null) {
                 return new ResultInfo(ErrCode.BAD_REQUEST, "", "参数错误");
             }
 
-            UserInfoDTO userInfo = userInfoService.findUserDetailById(userId);
+            UserInfoDTO userInfo = userInfoService.findUserDetailById(userId.longValue());
             if (null == userInfo) {
                 return new ResultInfo(ErrCode.BAD_REQUEST, "", "查找的用户不存在");
             }
 
-            return new ResultInfo(ErrCode.OK, "", "查找成功");
+            return new ResultInfo(ErrCode.OK, userInfo, "查找成功");
         } catch (Exception e) {
             e.printStackTrace();
             return new ResultInfo(ErrCode.INTERNAL_SERVER_ERROR, e.getMessage(), "查找用户信息失败");

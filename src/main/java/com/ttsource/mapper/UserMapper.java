@@ -1,7 +1,6 @@
 package com.ttsource.mapper;
 
-import com.ttsource.model.user.UserDO;
-import com.ttsource.model.user.UserDetailDTO;
+import com.ttsource.entities.UserDO;
 import com.ttsource.model.user.UserInfoDTO;
 import java.util.Date;
 import java.util.List;
@@ -58,5 +57,5 @@ public interface UserMapper {
 
     List<UserInfoDTO> listUserInfo();
 
-    UserDetailDTO findUserDetailById(@Param("userId") Long userId);
+    UserInfoDTO findUserDetailById(@Param("userId") Long userId);
 }

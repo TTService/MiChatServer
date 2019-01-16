@@ -1,15 +1,10 @@
 package com.ttsource.jwt;
 
-import com.google.common.io.CharStreams;
-import com.google.gson.Gson;
 import com.ttsource.jwt.token.TokenManager;
 import com.ttsource.jwt.token.TokenModel;
-import com.ttsource.model.user.LoginVO;
 import com.ttsource.util.ErrCode;
 import com.ttsource.util.JSONResult;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Enumeration;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -59,19 +54,9 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         /*String username = request.getParameter("identifier");
         String password = request.getParameter("credential");*/
 
-        LoginVO loginVO;
-        try {
-            String content = CharStreams.toString(new InputStreamReader(request.getInputStream(), "utf-8"));
-            Gson gson = new Gson();
-            loginVO = gson.fromJson(content, LoginVO.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            loginVO = new LoginVO();
-        }
-
         // 返回一个验证令牌
         return getAuthenticationManager()
-            .authenticate(new UsernamePasswordAuthenticationToken(loginVO.getIdentifier(), loginVO.getCredential()));
+            .authenticate(new UsernamePasswordAuthenticationToken(null, null));
     }
 
     @Override

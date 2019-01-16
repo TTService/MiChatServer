@@ -29,6 +29,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository(value = "redisUtil")
 public class RedisUtilImpl implements RedisUtil {
+
     /**
      * 前缀
      */
@@ -49,10 +50,10 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * 缓存value操作
      *
-     * @param k    key
-     * @param v    value
-     * @param time time
-     * @return boolean
+     * @param k key
+     * @param v value
+     * @param time 经过 {@code time}秒后过期
+     * @return boolean 存储成功返回true，否则返回false
      */
     @Override
     public boolean cacheValue(String k, String v, long time) {
@@ -167,8 +168,8 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * 缓存set操作
      *
-     * @param k    key
-     * @param v    value
+     * @param k key
+     * @param v value
      * @param time time
      * @return boolean
      */
@@ -203,8 +204,8 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * 缓存set
      *
-     * @param k    key
-     * @param v    value
+     * @param k key
+     * @param v value
      * @param time time
      * @return boolean
      */
@@ -256,8 +257,8 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * list缓存
      *
-     * @param k    key
-     * @param v    value
+     * @param k key
+     * @param v value
      * @param time time
      * @return boolean
      */
@@ -292,8 +293,8 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * 缓存list
      *
-     * @param k    key
-     * @param v    value
+     * @param k key
+     * @param v value
      * @param time time
      * @return boolean
      */
@@ -328,9 +329,9 @@ public class RedisUtilImpl implements RedisUtil {
     /**
      * 获取list缓存
      *
-     * @param k     key
+     * @param k key
      * @param start start
-     * @param end   end
+     * @param end end
      * @return list
      */
     @Override
@@ -365,7 +366,7 @@ public class RedisUtilImpl implements RedisUtil {
      * 获取总条数, 可用于分页
      *
      * @param listOps listOps
-     * @param k       k
+     * @param k k
      * @return long
      */
     @Override

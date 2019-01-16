@@ -1,9 +1,8 @@
 package com.ttsource.service;
 
+import com.ttsource.entities.UserAuthDO;
+import com.ttsource.entities.UserDO;
 import com.ttsource.model.user.RegisterVO;
-import com.ttsource.model.user.UserAuthDO;
-import com.ttsource.model.user.UserDTO;
-import com.ttsource.model.user.UserDetailDTO;
 import com.ttsource.model.user.UserInfoDTO;
 import com.ttsource.model.user.UserModifyVO;
 import java.util.List;
@@ -49,7 +48,7 @@ public interface UserInfoService {
      */
     boolean updateUserLoginState(Long userId, Integer loginState);
 
-    UserDTO findUserById(Long userId);
+    UserDO findUserById(Long userId);
 
     /**
      * 查找所有主播
@@ -71,5 +70,5 @@ public interface UserInfoService {
     /**
      * 查找用户的详细信息
      */
-    UserDetailDTO findUserDetailById(Long userId);
+    UserInfoDTO findUserDetailById(Long userId);
 }

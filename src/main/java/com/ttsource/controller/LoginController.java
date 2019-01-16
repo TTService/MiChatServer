@@ -2,14 +2,17 @@ package com.ttsource.controller;
 
 import com.ttsource.controller.presenter.LoginPresenter;
 import com.ttsource.controller.presenter.LoginPresenter.ILoginPresenter;
+import com.ttsource.entities.UserAuthDO;
+import com.ttsource.jwt.JwtTokenUtil;
+import com.ttsource.jwt.JwtUserFactory;
 import com.ttsource.jwt.token.TokenManager;
 import com.ttsource.jwt.token.TokenModel;
-import com.ttsource.model.user.RegisterVO;
-import com.ttsource.model.user.UserAuthDO;
-import com.ttsource.model.user.UserInfoDTO;
 import com.ttsource.model.result.ResultInfo;
+import com.ttsource.model.user.RegisterVO;
+import com.ttsource.model.user.UserInfoDTO;
 import com.ttsource.redis.RedisUtil;
 import com.ttsource.service.UserInfoService;
+import com.ttsource.util.AESUtil;
 import com.ttsource.util.ErrCode;
 import com.ttsource.util.StringUtil;
 import com.ttsource.util.VerificationCodeUtil;
@@ -22,7 +25,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,28 +57,51 @@ public class LoginController implements ILoginPresenter {
     private UserInfoService userInfoService;
     private RedisUtil redisUtil;
     private TokenManager tokenManager;
+    private JwtTokenUtil jwtTokenUtil;
 
     private LoginPresenter mPresenter;
+    @Value("${environment.release}")
+    private boolean isRelease;
 
     @Autowired
-    public LoginController(UserInfoService userInfoService, RedisUtil redisUtil, TokenManager tokenManager) {
+    public LoginController(
+        UserInfoService userInfoService,
+        RedisUtil redisUtil,
+        TokenManager tokenManager,
+        JwtTokenUtil jwtTokenUtil) {
         this.userInfoService = userInfoService;
         this.redisUtil = redisUtil;
         this.tokenManager = tokenManager;
+        this.jwtTokenUtil = jwtTokenUtil;
+
         mPresenter = new LoginPresenter(this, userInfoService);
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public ResultInfo login(HttpServletRequest request, HttpServletResponse response) {
-        String identifier = (String) request.getAttribute("identifier");
-        String token = (String) request.getAttribute("token");
-        if (identifier == null || token == null)
-            return new ResultInfo(ErrCode.BAD_REQUEST, "", "用户验证错误");
+    public ResultInfo login(@RequestBody UserAuthDO userAuth, HttpServletResponse response) {
+        /*String identifier = (String) request.getAttribute("identifier");
+        String token = (String) request.getAttribute("token");*/
+
+        String identifier = userAuth.getIdentifier();
+        String credential = userAuth.getCredential();
+
+        if (StringUtils.isEmpty(identifier) || StringUtil.isEmpty(credential)) {
+            return new ResultInfo(ErrCode.BAD_REQUEST, "", "请输入用户名和密码");
+        }
 
         UserInfoDTO user = userInfoService.findUserInfoByIdentifier(identifier);
         user.setLogged(1);
         userInfoService.updateUserLoginState(user.getUserId(), user.getLogged());
-        response.setHeader("token", token);
+
+        String token = jwtTokenUtil.generateToken(JwtUserFactory.create(user));
+
+        if (isRelease) {
+            response.setHeader("token", AESUtil.aesEncode(token));
+        } else {
+            response.setHeader("token", token);
+        }
+        // 禁止密码传输
+        user.setCredential("");
         return new ResultInfo(ErrCode.OK, user, "login success");
     }
 

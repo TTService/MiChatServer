@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ttsource.mapper.UserAuthMapper">
 
-    <insert id="addUserAuth" useGeneratedKeys="true" keyProperty="id" parameterType="com.ttsource.model.user.UserAuthDO">
+    <insert id="addUserAuth" useGeneratedKeys="true" keyProperty="id" parameterType="com.ttsource.entities.UserAuthDO">
         <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
             select LAST_INSERT_ID()
         </selectKey>
@@ -60,7 +60,7 @@
         )
     </insert>
 
-    <select id="getByIdentifier" resultType="com.ttsource.model.user.UserAuthDO">
+    <select id="getByIdentifier" resultType="com.ttsource.entities.UserAuthDO">
         SELECT
         user_id as userId,
         identify_type as identifyType,

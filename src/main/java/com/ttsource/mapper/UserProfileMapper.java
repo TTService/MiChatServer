@@ -1,6 +1,6 @@
 package com.ttsource.mapper;
 
-import com.ttsource.model.user.UserProfileDO;
+import com.ttsource.entities.UserProfileDO;
 import org.apache.ibatis.annotations.Mapper;
 
 /**

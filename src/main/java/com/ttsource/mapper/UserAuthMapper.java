@@ -1,6 +1,6 @@
 package com.ttsource.mapper;
 
-import com.ttsource.model.user.UserAuthDO;
+import com.ttsource.entities.UserAuthDO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

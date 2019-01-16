@@ -2,27 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ttsource.mapper.UserMapper">
 
-    <resultMap id="userInfo" type="com.ttsource.model.user.UserInfoDTO">
-        <id column="id" property="id"/>
-        <result column="username" property="username"/>
-        <result column="nick_name" property="nickName"/>
-        <result column="sex" property="sex"/>
-        <result column="age" property="age"/>
-        <result column="role" property="role"/>
-        <result column="state" property="state"/>
-        <result column="img" property="img"/>
-        <result column="description" property="description"/>
-        <result column="insert_time" property="insertTime"/>
-        <result column="update_time" property="updateTime"/>
-        <association property="id" column="id" autoMapping="true">
-            <result column="charge" property="charge"/>
-            <result column="talk_total" property="talkTotal"/>
-        </association>
-    </resultMap>
-
     <!-- 添加用户-->
     <insert id="createUser" useGeneratedKeys="true" keyProperty="userId"
-        parameterType="com.ttsource.model.user.UserDO">
+        parameterType="com.ttsource.entities.UserDO">
         <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="userId">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -99,7 +81,7 @@
     </delete>
 
     <!-- 修改用户基本信息,不包括密码，手机号码, 邮箱-->
-    <update id="updateUserBasicInfo" parameterType="com.ttsource.model.user.UserDO">
+    <update id="updateUserBasicInfo" parameterType="com.ttsource.entities.UserDO">
         update admin_user
         <trim prefix="set" prefixOverrides=",">
             <if test="nickname != null">
@@ -137,7 +119,7 @@
         update admin_user set is_login = #{loginState}, gmt_login = #{gmtLogin} where id = #{userId}
     </update>
 
-    <select id="findUserById" resultType="com.ttsource.model.user.UserDO">
+    <select id="findUserById" resultType="com.ttsource.entities.UserDO">
         select
         id as userId,
         nick_name as nickname,
@@ -152,10 +134,14 @@
         from admin_user where id = #{userId}
     </select>
     
-    <select id="findUserInfoByIdentifier" resultType="com.ttsource.model.user.UserInfoDTO">
+    <select id="findUserInfoByIdentifier" resultMap="userInfoDTOMap">
         SELECT
         admin_user.id as userId,
         admin_user.nick_name as nickname,
+        admin_user_auth.identifier,
+        admin_user_auth.identify_type as identifyType,
+        admin_user_auth.credential,
+        admin_user_auth.gmt_psw_last_reset as gmtPswLastReset,
         admin_user.sex,
         admin_user.age,
         admin_user.state,
@@ -175,6 +161,19 @@
         LEFT JOIN admin_user_profile on admin_user_auth.user_id = admin_user_profile.user_id
         LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
         where admin_user_auth.identifier = #{identifier}
+    </select>
+    
+    <resultMap id="userInfoDTOMap" type="com.ttsource.model.user.UserInfoDTO">
+        <id property="userId" column="userId"/>
+        <collection property="roles"  column="userId=userId" select="listUserRole"/>
+    </resultMap>
+    
+    <select id="listUserRole" resultType="string">
+        SELECT
+        role
+        from admin_user_role
+        left join admin_role on admin_user_role.role_id = admin_role.id
+        where admin_user_role.user_id = #{userId}
     </select>
 
     <select id="listUserInfo" resultType="com.ttsource.model.user.UserInfoDTO">
@@ -201,7 +200,7 @@
         LEFT JOIN admin_anchor on admin_user.id = admin_anchor.user_id
     </select>
 
-    <select id="findUserDetailById" resultType="com.ttsource.model.user.UserDetailDTO">
+    <select id="findUserDetailById" resultType="com.ttsource.model.user.UserInfoDTO">
         SELECT
         admin_user.id as userId,
         admin_user.nick_name as nickname,

@@ -1,4 +1,4 @@
-package com.ttsource.model.user;
+package com.ttsource.entities;
 
 import java.util.Date;
 

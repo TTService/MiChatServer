@@ -37,6 +37,10 @@ public class MD5Util {
         return hexDigits[d1] + hexDigits[d2];
     }
 
+    public static String encode(String origin) {
+        return encode(origin, "UTF8");
+    }
+
     /**
      * MD5加密算法
      *

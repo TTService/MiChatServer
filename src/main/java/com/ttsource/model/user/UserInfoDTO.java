@@ -1,5 +1,8 @@
 package com.ttsource.model.user;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  * **********************************************
  * <p/>
@@ -18,7 +21,26 @@ package com.ttsource.model.user;
 public class UserInfoDTO {
 
     private Long userId;
+    /**
+     * 用户昵称
+     */
     private String nickname;
+    /**
+     * 用户账号
+     */
+    private String identifier;
+    /**
+     * 用户登录方式
+     */
+    private String identifyType;
+    /**
+     * 用户密码
+     */
+    private String credential;
+    /**
+     * 用户密码最后修改时间
+     */
+    private Date gmtPswLastReset;
     private Integer age;
     private Integer height;
     private Integer sex;
@@ -32,6 +54,10 @@ public class UserInfoDTO {
     private String city;
     private String constellation;
     private String career;
+    /**
+     * 用户角色
+     */
+    private List<String> roles;
     private float charge;
     private double talkTotal;
 
@@ -169,5 +195,45 @@ public class UserInfoDTO {
 
     public void setTalkTotal(double talkTotal) {
         this.talkTotal = talkTotal;
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public String getIdentifyType() {
+        return identifyType;
+    }
+
+    public void setIdentifyType(String identifyType) {
+        this.identifyType = identifyType;
+    }
+
+    public String getCredential() {
+        return credential;
+    }
+
+    public void setCredential(String credential) {
+        this.credential = credential;
+    }
+
+    public Date getGmtPswLastReset() {
+        return gmtPswLastReset;
+    }
+
+    public void setGmtPswLastReset(Date gmtPswLastReset) {
+        this.gmtPswLastReset = gmtPswLastReset;
     }
 }

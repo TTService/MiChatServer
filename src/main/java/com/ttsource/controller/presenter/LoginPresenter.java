@@ -2,7 +2,7 @@ package com.ttsource.controller.presenter;
 
 import com.ttsource.model.result.ResultInfo;
 import com.ttsource.model.user.RegisterVO;
-import com.ttsource.model.user.UserAuthDO;
+import com.ttsource.entities.UserAuthDO;
 import com.ttsource.service.UserInfoService;
 import com.ttsource.util.ErrCode;
 import com.ttsource.util.StringUtil;
