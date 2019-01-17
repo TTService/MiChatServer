@@ -77,6 +77,17 @@ public class LoginController implements ILoginPresenter {
         mPresenter = new LoginPresenter(this, userInfoService);
     }
 
+    /**
+     * 登录接口
+     *
+     * 参数格式：JSON
+     * {
+     *     "identifier": "username", // 用户名
+     *     "credential": "password"  // 密码
+     * }
+     *
+     * @return 返回用户的基本信息
+     */
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResultInfo login(@RequestBody UserAuthDO userAuth, HttpServletResponse response) {
         /*String identifier = (String) request.getAttribute("identifier");
