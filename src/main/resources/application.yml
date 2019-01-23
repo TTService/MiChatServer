@@ -1,8 +1,19 @@
 server:
-  port: 8081
+  port: 8066
 
 spring:
   profiles:
     active: dev
   jpa:
     show-sql: true
+
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql
+
+default:
+  pageNum: 1
+  pageSize: 50
+

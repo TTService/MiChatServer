@@ -89,7 +89,7 @@ public class UserController implements IUserPresenter {
      */
     @RequestMapping(value = "/update/basic")
     @Transactional
-    @PreAuthorize("hasRole('')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResultInfo updateUserInfo(@RequestBody UserModifyVO userInfo) {
         if (userInfo == null || userInfo.getUserId() <= 0)
             return new ResultInfo(ErrCode.BAD_REQUEST, "", "参数错误");

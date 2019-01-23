@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ttsource.mapper.AnchorMapper">
+
+    <select id="listHotAnchor" resultType="com.ttsource.model.anchor.AnchorInfoDTO">
+        select
+        admin_user.id as userId,
+        admin_user.nick_name as nickname,
+        admin_user.age,
+        admin_user.height,
+        admin_user.sex,
+        admin_user.state,
+        userProfile.avatar,
+        userProfile.address,
+        userProfile.mobile,
+        userProfile.email,
+        userProfile.description,
+        userProfile.city,
+        userProfile.constellation,
+        userProfile.career,
+        anchor.charge,
+        anchor.talk_total as talkTotal
+        from admin_anchor as anchor
+        left join admin_user on anchor.user_id = admin_user.id
+        left join admin_user_profile as userProfile on anchor.user_id = userProfile.user_id
+    </select>
+</mapper>

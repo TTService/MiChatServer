@@ -107,6 +107,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/user/new").permitAll()
             .antMatchers("/user/active").permitAll()
             .antMatchers("/oss/**").permitAll()
+            .antMatchers("/anchor/**").permitAll()
             // 所有 /login 的POST请求 都放行
             .antMatchers(HttpMethod.POST, "/login").permitAll()
             // 添加权限检测
