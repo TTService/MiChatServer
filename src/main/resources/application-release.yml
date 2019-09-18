@@ -1,7 +1,7 @@
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://123.207.64.215:3306/michat?useUnicode=true&characterEncoding=UTF-8
+      url: jdbc:mysql://www.michat.ttsource.cn:3306/michat?useUnicode=true&characterEncoding=UTF-8
       username: ttsource
       password: al2cdIk3M9vj58j+2ldk7/UhgfnqTXOpGd9nT3CB4uq8HKhwMUBLABpX1bAZSJysJbZZ7GwMy6WvvHpiRZCpqQ==
       driver-class-name: com.mysql.jdbc.Driver
@@ -31,7 +31,7 @@ spring:
       use-global-data-source-stat: true
       connection-properties: config.decrypt=true;config.decrypt.key=${publickey}
   redis:
-    host: 123.207.64.215
+    host: www.michat.ttsource.cn
     port: 6379
     database: 0
     password: redis
