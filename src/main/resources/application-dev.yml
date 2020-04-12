@@ -1,7 +1,7 @@
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://116.228.75.54:9901/qpgis?useUnicode=true&characterEncoding=UTF-8
+      url: jdbc:mysql://116.228.75.54:9901/qpgis-monitor?useUnicode=true&characterEncoding=UTF-8
       username: sa
       password: Sa@1234567890
       driver-class-name: com.mysql.jdbc.Driver
