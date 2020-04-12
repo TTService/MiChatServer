@@ -1,9 +1,9 @@
 spring:
   datasource:
     druid:
-      url: jdbc:mysql://123.207.64.215:3306/michat?useUnicode=true&characterEncoding=UTF-8
-      username: ttsource
-      password: al2cdIk3M9vj58j+2ldk7/UhgfnqTXOpGd9nT3CB4uq8HKhwMUBLABpX1bAZSJysJbZZ7GwMy6WvvHpiRZCpqQ==
+      url: jdbc:mysql://116.228.75.54:9901/qpgis?useUnicode=true&characterEncoding=UTF-8
+      username: sa
+      password: Sa@1234567890
       driver-class-name: com.mysql.jdbc.Driver
       db-type: com.alibaba.druid.pool.DruidDataSource
       initial-size: 5
@@ -28,13 +28,11 @@ spring:
         # 启动ConfigFilter
         config:
           enabled: true
-      use-global-data-source-stat: true
-      connection-properties: config.decrypt=true;config.decrypt.key=${publickey}
   redis:
-    host: 123.207.64.215
+    host: 116.228.75.54
     port: 6379
     database: 0
-    password: redis
+    password: Sa@1234567890
   devtools:
     restart:
       enabled: true
@@ -58,5 +56,3 @@ environment:
   jwt:
     header: Authorization
     head: MiChatHeader#_
-publickey:
-  MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAJUk82FWBNIwXZEGMtVr0PT8KAOjKuNiW9GAU5qASPVF12iryhV0jVJOu8mgrpv1Cgy1jLchffdeYNjtWcxPSeMCAwEAAQ==
